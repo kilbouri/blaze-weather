@@ -1,6 +1,6 @@
 # Blaze Weather
 
-A full-stack app built in Blazor. Provides weather data using the OpenWeather API.
+A weather app written in Blazor Server. Provides weather data using the OpenWeather API.
 
 ## Setup
 
