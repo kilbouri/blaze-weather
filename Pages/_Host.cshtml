@@ -10,16 +10,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="~/" />
 
+    @* Favicon *@
+    <link rel="icon" type="image/png" href="favicon.png"/>
+
+    @* Google fonts *@
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    @* Component CSS bundle *@
+    <link href="BlazeWeather.styles.css" rel="stylesheet">
+
+    @* Other CSS *@
     <link href="css/blazor.css" rel="stylesheet" />
-    <link href="css/reset.css" rel="stylesheet" />
     <link href="css/site.css" rel="stylesheet" />
 
-    <link rel="icon" type="image/png" href="favicon.png"/>
-    
+    @* Tailwind CSS *@
+    <environment include="Development">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            'sans': ['Inter', ...tailwind.defaultTheme.fontFamily.sans]
+                        }
+                    }
+                }
+            }
+        </script>
+    </environment>
+    <environment include="Staging,Production">
+        @* TODO: figure out what the hell to put here to access generated Tailwind styles instead of bundling the entire TWCSS library...*@
+    </environment>
+
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
 <body>
-    <component type="typeof(App)" render-mode="ServerPrerendered" />
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
@@ -30,6 +55,8 @@
         </environment>
     </div>
 
+    <component type="typeof(App)" render-mode="ServerPrerendered" />
+    
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>

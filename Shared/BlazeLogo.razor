@@ -1,0 +1,12 @@
+<span class="text-amber-400">
+    <span class="oi" data-glyph="fire">Blaze</span>
+
+    @if (!Short)
+    {
+        <span class="text-white">Weather</span>
+    }
+</span>
+
+@code {
+    [Parameter] public bool Short { get; set; } = true;
+} 

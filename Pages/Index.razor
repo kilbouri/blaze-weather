@@ -1,40 +1,47 @@
 ﻿@page "/"
 @using System.Threading.Tasks;
-@using BlazeWeather.Services;
-@using BlazeWeather.Models.Domain;
 
-@inject GeocodingService geocodeService
 
-<h1>Blaze Weather</h1>
+<div 
+    id="searchContainer"
+    class="mx-auto pt-[25dvh] flex flex-col items-center gap-8 px-2"
+>
+    <h1 class="text-3xl font-semibold text-white"><BlazeLogo /></h1>
 
-<form class="searchArea" @onsubmit="WeatherSearchSubmit">
-    <input id="location" class="primarySearch" type="text" @bind-value="location" placeholder="City..." />
-    <button class="go" type="submit">Go &RightArrow;</button>
-</form>
+    <form class="max-w-lg flex w-full" @onsubmit="WeatherSearchSubmit">
+        <input 
+            type="text" 
+            placeholder="City..."
+            id="searchLocation" 
+            class="w-full grow rounded-l-full px-4 py-2"
+            @bind-value="location" 
+        />
+        
+        <button 
+            type="submit"
+            id="searchSubmit"
+            class="bg-green-500 min-w-0 text-white font-bold rounded-r-full ps-4 pe-5 py-2"
+        >
+            <span class="oi" data-glyph="arrow-right"></span>
+        </button>
+    </form>
+</div>
 
 @if (submitted) {
     <p>
         You submitted the form, but the behaviour isn't implemented yet... please hold :)
     </p>
+
+    <p>Location: @location</p>
 }
-
-
 
 @code {
     private string location = "";
-    private List<GeocodeOption>? options = null;
-    private bool showResult = false;
-
     private bool submitted = false;
 
-    private async Task FetchWeather()
-    {
-        options = (await geocodeService.GetSuggestions(location))?.ToList();
-        showResult = true;
-    }
-
-    private async Task WeatherSearchSubmit()
+    private Task WeatherSearchSubmit()
     {
         submitted = true;
+        return Task.CompletedTask;
     }
 } 
