@@ -15,6 +15,9 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<WeatherService>();
 builder.Services.AddSingleton<GeocodingService>();
 
+// Utility services
+builder.Services.AddTransient<PeriodicJobService>();
+
 builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
 
 

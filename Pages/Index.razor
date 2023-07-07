@@ -1,47 +1,73 @@
 ﻿@page "/"
-@using System.Threading.Tasks;
 
-
-<div 
+<div
     id="searchContainer"
     class="mx-auto pt-[25dvh] flex flex-col items-center gap-8 px-2"
 >
-    <h1 class="text-3xl font-semibold text-white" style="text-shadow: 0px 0px 48px black"><BlazeLogo /></h1>
+    <h1
+        class="text-3xl font-semibold text-white"
+        style="text-shadow: 0px 0px 48px black"
+    >
+        <BlazeLogo />
+    </h1>
 
     <form class="max-w-lg flex w-full" @onsubmit="WeatherSearchSubmit">
-        <input 
-            type="text" 
+        <input
+            type="text"
             placeholder="City..."
-            id="searchLocation" 
-            class="w-full grow rounded-l-full px-4 py-2"
-            @bind-value="location" 
+            id="searchLocation"
+            class="w-full rounded-l-full px-4 py-2"
+            value="@LocationFilter"
+            @oninput="LocationFilterChanged"
         />
-        
-        <button 
+
+        <button
             type="submit"
             id="searchSubmit"
-            class="bg-green-500 min-w-0 text-white font-bold rounded-r-full ps-4 pe-5 py-2"
+            class="bg-green-500 text-white font-bold rounded-r-full ps-4 pe-5 pt-3 pb-2"
         >
             <span class="oi" data-glyph="arrow-right"></span>
         </button>
     </form>
+
+    <p>Timer ticked @TimerTickCount times</p>
+
 </div>
 
-@if (submitted) {
-    <p>
-        You submitted the form, but the behaviour isn't implemented yet... please hold :)
-    </p>
-
-    <p>Location: @location</p>
-}
-
 @code {
-    private string location = "";
-    private bool submitted = false;
+    private const int RESULTS_INTERVAL_SECONDS = 1;
 
-    private Task WeatherSearchSubmit()
+	public int TimerTickCount { get; set; }
+	public string LocationFilter = "";
+	public bool Submitted = false;
+
+	[Inject]
+	private PeriodicJobService SearchResultsTimer { get; set; } = null!;
+
+	protected override void OnAfterRender(bool firstRender)
     {
-        submitted = true;
-        return Task.CompletedTask;
-    }
-} 
+		if (firstRender)
+        {
+			SearchResultsTimer.Jobs += HandleSearchTimerTick;
+			SearchResultsTimer.Start(TimeSpan.FromSeconds(RESULTS_INTERVAL_SECONDS));
+		}
+	}
+
+	private void HandleSearchTimerTick(object? sender, PeriodicJobService.PeriodicJobArgs args)
+	{
+		TimerTickCount += 1;
+		InvokeAsync(StateHasChanged);
+	}
+
+	// Location field changed handler
+	private void LocationFilterChanged(ChangeEventArgs args)
+	{
+		LocationFilter = args.Value?.ToString() ?? "";
+	}
+
+	// Form submit handler
+	private void WeatherSearchSubmit()
+	{
+		Submitted = true;
+	}
+}
