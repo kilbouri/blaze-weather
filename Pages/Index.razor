@@ -1,17 +1,37 @@
 ﻿@page "/"
+@using System.Threading.Tasks;
+@using BlazeWeather.Services;
+@using BlazeWeather.Models.Domain;
+
+@inject GeocodingService geocodeService
 
 <h1>Blaze Weather</h1>
 
 <label for="location">Location</label>
 
-<input id="location" type="text"   @bind-value="location" placeholder="City..." />
+<input id="location" type="text" @bind-value="location" placeholder="City..." />
 <button @onclick="FetchWeather">Go &RightArrow;</button>
+
+@if (showResult) {
+    @if (options == null) {
+        <p>Failed to geocode</p>
+    } else {
+        <ol>
+            @foreach (var suggestion in options) {
+                <li>@suggestion.City, @suggestion.State, @suggestion.Country @suggestion.ResolvedGeocode.ToString()</li>
+            }
+        </ol>
+    }
+}
 
 @code {
     private string location = "";
-    
-    private void FetchWeather()
+    private List<GeocodeOption>? options = null;
+    private bool showResult = false;
+
+    private async Task FetchWeather()
     {
-        Console.WriteLine(location);
+        options = (await geocodeService.GetSuggestions(location))?.ToList();
+        showResult = true;
     }
 } 
