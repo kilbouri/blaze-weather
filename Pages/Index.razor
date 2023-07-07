@@ -7,31 +7,34 @@
 
 <h1>Blaze Weather</h1>
 
-<label for="location">Location</label>
+<form class="searchArea" @onsubmit="WeatherSearchSubmit">
+    <input id="location" class="primarySearch" type="text" @bind-value="location" placeholder="City..." />
+    <button class="go" type="submit">Go &RightArrow;</button>
+</form>
 
-<input id="location" type="text" @bind-value="location" placeholder="City..." />
-<button @onclick="FetchWeather">Go &RightArrow;</button>
-
-@if (showResult) {
-    @if (options == null) {
-        <p>Failed to geocode</p>
-    } else {
-        <ol>
-            @foreach (var suggestion in options) {
-                <li>@suggestion.City, @suggestion.State, @suggestion.Country @suggestion.ResolvedGeocode.ToString()</li>
-            }
-        </ol>
-    }
+@if (submitted) {
+    <p>
+        You submitted the form, but the behaviour isn't implemented yet... please hold :)
+    </p>
 }
+
+
 
 @code {
     private string location = "";
     private List<GeocodeOption>? options = null;
     private bool showResult = false;
 
+    private bool submitted = false;
+
     private async Task FetchWeather()
     {
         options = (await geocodeService.GetSuggestions(location))?.ToList();
         showResult = true;
+    }
+
+    private async Task WeatherSearchSubmit()
+    {
+        submitted = true;
     }
 } 
