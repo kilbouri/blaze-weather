@@ -2,6 +2,14 @@
     min-height: 100vh;
     min-height: 100dvh;
 
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+
+    object-fit: cover;
+}
+
+.landscape {
     --background-tint-start: #0000007a;
     --background-tint-end: #0000005f;
     background-image: linear-gradient(
@@ -10,10 +18,17 @@
         ),
         url("./static/landscape.jpg");
 
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-size: cover;
-
-    object-fit: cover;
     background-position: 0 0, center 70%;
+}
+
+.warmForest {
+    --background-tint-start: #00000094;
+    --background-tint-end: #00000019;
+    background-image: linear-gradient(
+            var(--background-tint-start) 30%,
+            var(--background-tint-end)
+        ),
+        url("./static/warmForest.jpg");
+
+    background-position: 0 0, center 90%;
 }
