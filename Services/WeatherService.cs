@@ -17,7 +17,7 @@ public class WeatherService
 	public WeatherService(HttpClient httpClient, IOptions<AppSettings> opts, ILogger<WeatherService> logger)
 	{
 		this.httpClient = httpClient;
-		this.openWeatherApiKey = opts.Value.OpenWeatherAPIKey;
+		this.openWeatherApiKey = opts.Value.OpenWeatherApiKey;
 		this.logger = logger;
 	}
 

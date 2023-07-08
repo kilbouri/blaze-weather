@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using BlazeWeather.Models.Domain;
-using BlazeWeather.Models.OpenWeatherAPI;
+using BlazeWeather.Models.TomTom;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -15,67 +15,73 @@ public class GeocodingService
 {
 
 	private readonly HttpClient httpClient;
-	private readonly string openWeatherApiKey;
+	private readonly string tomtomApiKey;
 	private readonly ILogger<GeocodingService> logger;
 
 	public GeocodingService(HttpClient httpClient, IOptions<AppSettings> opts, ILogger<GeocodingService> logger)
 	{
 		this.httpClient = httpClient;
-		this.openWeatherApiKey = opts.Value.OpenWeatherAPIKey;
+		this.tomtomApiKey = opts.Value.TomTomApiKey;
 		this.logger = logger;
 	}
 
-	public async Task<IEnumerable<GeocodeOption>?> GetSuggestions(string city, int limit = 5)
+	public async Task<IEnumerable<GeocodeOption>> GetCitySuggestions(string city, int limit = 5)
 	{
-		List<GeocodingSuggestion>? apiResponse = await GetDirectGeocoding(city, limit);
-
-		if (apiResponse == null)
+		if (limit <= 0)
 		{
-			logger.LogWarning("Failed to retrieve Geocode suggestions for {City}", city);
-			return null;
+			logger.LogWarning("Requested limit of {Limit} is less than 1", limit);
+			return Enumerable.Empty<GeocodeOption>();
 		}
 
-		return apiResponse.Select(result => new GeocodeOption()
+		const int RESULTS_LIMIT = 2000;
+		if (limit > RESULTS_LIMIT)
 		{
-			City = result.Name,
-			State = result.State,
-			Country = result.Country,
-			ResolvedGeocode = new Geocode
-			{
-				Latitude = result.Lat,
-				Longitude = result.Lon
-			}
-		});
-	}
-
-	public async Task<Geocode?> GetFromCity(string city)
-	{
-		List<GeocodingSuggestion>? apiResponse = await GetDirectGeocoding(city, 1);
-
-		if (apiResponse == null || !apiResponse.Any())
-		{
-			logger.LogWarning("Failed to retrieve Geocode for {City}", city);
-			return null;
+			logger.LogWarning("Capping requested limit of {Limit} to {ApiLimit} due to API restriction", limit, RESULTS_LIMIT);
+			limit = RESULTS_LIMIT;
 		}
 
-		// TODO: can we somehow provide this decision to the user?
-		GeocodingSuggestion acceptedSuggestion = apiResponse.First();
-		logger.LogInformation("Determined {City} is located at {Geocode}", city, acceptedSuggestion);
-
-		return new Geocode
+		GeocodingSearchResult? searchResults = await GetDirectCityGeocoding(city, limit);
+		if (searchResults == null)
 		{
-			Latitude = acceptedSuggestion.Lat,
-			Longitude = acceptedSuggestion.Lon,
-		};
+			logger.LogWarning("Failed to retrieve geocode suggestions for {Location}", city);
+			return Enumerable.Empty<GeocodeOption>();
+		}
+
+		logger.LogInformation("Retrieved {Count} geocode suggestions for {Location}", searchResults.Results.Count, city);
+
+		return searchResults.Results
+							.OrderByDescending(result => result.MatchConfidence.Score)
+							.Select(result => new GeocodeOption
+							{
+								City = result.Address.Municipality,
+								State = result.Address.CountrySubdivision,
+								Country = result.Address.Country,
+								Confidence = result.MatchConfidence.Score,
+								ResolvedGeocode = new Geocode()
+								{
+									Latitude = result.Position.Lat,
+									Longitude = result.Position.Lon
+								}
+							});
 	}
 
-	private async Task<List<GeocodingSuggestion>?> GetDirectGeocoding(string cityDescription, int limit)
+	private async Task<GeocodingSearchResult?> GetDirectCityGeocoding(string location, int limit)
 	{
 		try
 		{
-			string urlSafeCity = Uri.EscapeDataString(cityDescription);
-			string uri = $"http://api.openweathermap.org/geo/1.0/direct?q={urlSafeCity}&appid={openWeatherApiKey}&limit={limit}";
-			return await httpClient.GetFromJsonAsync<List<GeocodingSuggestion>>(uri);
+			// Municipality = City, CountrySubdivision = State/Province/Territory/etc., Country = Country
+			const string ENTITY_TYPE_SET = "Municipality";
+			Uri apiUri = new UriBuilder()
+			{
+				Scheme = "https",
+				Host = "api.tomtom.com",
+				Path = $"search/2/geocode/{location}.json",
+				Query = $"key={tomtomApiKey}&limit={limit}&entityTypeSet={ENTITY_TYPE_SET}",
+			}.Uri;
+
+			logger.LogInformation("Request URI: {Uri}", apiUri.AbsoluteUri);
+
+			return await httpClient.GetFromJsonAsync<GeocodingSearchResult>(apiUri);
 		}
 		catch (HttpRequestException)
 		{
