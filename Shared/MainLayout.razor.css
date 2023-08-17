@@ -22,8 +22,8 @@
 }
 
 .warmForest {
-    --background-tint-start: #00000094;
-    --background-tint-end: #00000019;
+    --background-tint-start: #000000ab;
+    --background-tint-end: #0000004b;
     background-image: linear-gradient(
             var(--background-tint-start) 30%,
             var(--background-tint-end)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using BlazeWeather.Models.Domain;
 using BlazeWeather.Models.TomTom;
@@ -25,7 +26,7 @@ public class GeocodingService
 		this.logger = logger;
 	}
 
-	public async Task<IEnumerable<GeocodeOption>> GetCitySuggestions(string city, int limit = 5)
+	public async Task<IEnumerable<GeocodeOption>> GetCitySuggestions(string city, int limit = 5, CancellationToken token = default)
 	{
 		if (limit <= 0)
 		{
@@ -40,7 +41,7 @@ public class GeocodingService
 			limit = RESULTS_LIMIT;
 		}
 
-		GeocodingSearchResult? searchResults = await GetDirectCityGeocoding(city, limit);
+		GeocodingSearchResult? searchResults = await GetDirectCityGeocoding(city, limit, token);
 		if (searchResults == null)
 		{
 			logger.LogWarning("Failed to retrieve geocode suggestions for {Location}", city);
@@ -65,7 +66,7 @@ public class GeocodingService
 							});
 	}
 
-	private async Task<GeocodingSearchResult?> GetDirectCityGeocoding(string location, int limit)
+	private async Task<GeocodingSearchResult?> GetDirectCityGeocoding(string location, int limit, CancellationToken token = default)
 	{
 		try
 		{
@@ -81,7 +82,8 @@ public class GeocodingService
 
 			logger.LogInformation("Request URI: {Uri}", apiUri.AbsoluteUri);
 
-			return await httpClient.GetFromJsonAsync<GeocodingSearchResult>(apiUri);
+
+			return await httpClient.GetFromJsonAsync<GeocodingSearchResult>(apiUri, token);
 		}
 		catch (HttpRequestException)
 		{
