@@ -34,10 +34,10 @@ public class WeatherService
 		logger.LogInformation("Fetched weather at at (Latitude: {Lat}, Longitude: {Lng})", lat, lng);
 		return new Weather
 		{
-			Temperature = apiResponse.Main.Temp,
-			TemperatureMin = apiResponse.Main.TempMin,
-			TemperatureMax = apiResponse.Main.TempMax,
-			FeelsLike = apiResponse.Main.FeelsLike,
+			Temperature = Temperature.FromCelsius(apiResponse.Main.Temp),
+			TemperatureMin = Temperature.FromCelsius(apiResponse.Main.TempMin),
+			TemperatureMax = Temperature.FromCelsius(apiResponse.Main.TempMax),
+			FeelsLike = Temperature.FromCelsius(apiResponse.Main.FeelsLike),
 			PressureHPA = apiResponse.Main.Pressure,
 			HumidityPerecent = apiResponse.Main.Humidity,
 		};
