@@ -1,6 +1,6 @@
 <button type="button" onclick=@(OnSelect) class="flex gap-2 items-baseline hover:bg-white/20 w-full h-full p-4 py-2">
     <span class="text-zinc-800 font-bold">@(City)</span>
-    <span class="text-zinc-700 font-medium text-sm">@(State), @(Country)</span>
+    <span class="text-zinc-700 font-medium text-sm">@(GetRegionString())</span>
 </button>
 
 @code {
@@ -8,4 +8,18 @@
     [Parameter] public string City { get; set; } = "";
     [Parameter] public string State { get; set; } = "";
     [Parameter] public string Country { get; set; } = "";
+
+    private string GetRegionString() {
+        List<string> components = new List<string>(2);
+
+        if (!string.IsNullOrWhiteSpace(State)) {
+            components.Add(State);
+        }
+
+        if (!string.IsNullOrWhiteSpace(Country)) {
+            components.Add(Country);
+        }
+
+        return string.Join(", ", components);
+    }
 } 
