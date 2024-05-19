@@ -46,9 +46,10 @@
     // TomTom's API (used for geocoding & search completion) has a per-second
     // and per-day rate limit so we use a fixed update interval while the user is typing
     // to avoid rapid depletion of either cap.
-    private const int RESULTS_INTERVAL_MILLISECONDS = 750;
+    private const int RESULTS_INTERVAL_MILLISECONDS = 500;
+    private const int MAX_NUM_FETCHED_RESULTS = 50;
     private const int MINIMUM_FILTER_LENGTH = 3;
-    private const float FUZZ_MIN = 0.60f;
+    private const float FUZZ_MIN = 0.00f;
 
     private List<GeocodeOption>? SearchResults = null;
     private IEnumerable<GeocodeOption> TopResults
@@ -130,7 +131,7 @@
 
     private async Task UpdateSearchResults(string filter, CancellationToken ct)
     {
-        var results = await geocodingService.GetCitySuggestions(filter, 50, ct);
+        var results = await geocodingService.GetCitySuggestions(filter, MAX_NUM_FETCHED_RESULTS, ct);
         if (results == null || ct.IsCancellationRequested)
         {
             // If cancellation is requested, a newer request has completed while we were waiting

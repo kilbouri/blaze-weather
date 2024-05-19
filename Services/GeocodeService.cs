@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BlazeWeather.Models.Domain;
 using BlazeWeather.Models.TomTom;
+using FuzzySharp;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -34,11 +35,11 @@ public class GeocodingService
 			return Enumerable.Empty<GeocodeOption>();
 		}
 
-		const int RESULTS_LIMIT = 2000;
-		if (limit > RESULTS_LIMIT)
+		const int API_MAX_RESULTS = 2000;
+		if (limit > API_MAX_RESULTS)
 		{
-			logger.LogWarning("Capping requested limit of {Limit} to {ApiLimit} due to API restriction", limit, RESULTS_LIMIT);
-			limit = RESULTS_LIMIT;
+			logger.LogWarning("Capping requested limit of {Limit} to {ApiLimit} due to API restriction", limit, API_MAX_RESULTS);
+			limit = API_MAX_RESULTS;
 		}
 
 		GeocodingSearchResult? searchResults = await GetDirectCityGeocoding(city, limit, token);
@@ -51,7 +52,6 @@ public class GeocodingService
 		logger.LogInformation("Retrieved {Count} geocode suggestions for {Location}", searchResults.Results.Count, city);
 
 		return searchResults.Results
-							.OrderByDescending(result => result.MatchConfidence.Score)
 							.Select(result => new GeocodeOption
 							{
 								City = result.Address.Municipality,
@@ -77,7 +77,7 @@ public class GeocodingService
 				Scheme = "https",
 				Host = "api.tomtom.com",
 				Path = $"search/2/geocode/{location}.json",
-				Query = $"key={tomtomApiKey}&limit={limit}&entityTypeSet={ENTITY_TYPE_SET}",
+				Query = $"key={tomtomApiKey}&limit={limit}&entityTypeSet={ENTITY_TYPE_SET}&typeahead=true",
 			}.Uri;
 
 			logger.LogInformation("Request URI: {Uri}", apiUri.AbsoluteUri);
