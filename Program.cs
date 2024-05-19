@@ -1,6 +1,6 @@
 using BlazeWeather;
 using BlazeWeather.Services;
-using BlazeWeather.Services.Interfaces;
+using BlazeWeather.Services.Geocoders;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BlazeWeather.Models.Domain;
-using BlazeWeather.Services.Interfaces;
+using BlazeWeather.Services.Geocoders;
 using Microsoft.Extensions.Logging;
 
 namespace BlazeWeather.Services;

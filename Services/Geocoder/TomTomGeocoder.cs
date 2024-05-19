@@ -7,11 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using BlazeWeather.Models.Domain;
 using BlazeWeather.Models.TomTom;
-using BlazeWeather.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace BlazeWeather.Services;
+namespace BlazeWeather.Services.Geocoders;
 
 public class TomTomGeocoder : IGeocoder
 {
