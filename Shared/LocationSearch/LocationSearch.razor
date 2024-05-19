@@ -48,7 +48,7 @@
     // to avoid rapid depletion of either cap.
     private const int RESULTS_INTERVAL_MILLISECONDS = 750;
     private const int MINIMUM_FILTER_LENGTH = 3;
-    private const float FUZZ_MIN = 0.00f;
+    private const float FUZZ_MIN = 0.60f;
 
     private List<GeocodeOption>? SearchResults = null;
     private IEnumerable<GeocodeOption> TopResults
@@ -64,7 +64,6 @@
 
     [Inject] private PeriodicJobService periodicJobService {get;set;} = null!;
     [Inject] private GeocodingService geocodingService {get;set;} = null!;
-    [Inject] private NavigationManager navigationManager {get;set;} = null!;
 
     private void QueryChanged(ChangeEventArgs args)
     {
@@ -149,6 +148,5 @@
     private void HandleItemClicked(GeocodeOption selected)
     {
         Console.WriteLine(selected);
-        navigationManager.NavigateTo("/weather");
     }
 }
