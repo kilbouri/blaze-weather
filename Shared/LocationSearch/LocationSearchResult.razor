@@ -9,14 +9,17 @@
     [Parameter] public string State { get; set; } = "";
     [Parameter] public string Country { get; set; } = "";
 
-    private string GetRegionString() {
+    private string GetRegionString()
+    {
         List<string> components = new List<string>(2);
 
-        if (!string.IsNullOrWhiteSpace(State)) {
+        if (!string.IsNullOrWhiteSpace(State))
+        {
             components.Add(State);
         }
 
-        if (!string.IsNullOrWhiteSpace(Country)) {
+        if (!string.IsNullOrWhiteSpace(Country))
+        {
             components.Add(Country);
         }
 

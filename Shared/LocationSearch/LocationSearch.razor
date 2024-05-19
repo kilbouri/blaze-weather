@@ -3,7 +3,6 @@
         <input
             type="text"
             placeholder="City"
-            value=@(query)
             @oninput=@(QueryChanged)
             id="citySearch"
             class="bg-white/40 backdrop-blur-sm font-medium placeholder:text-zinc-700 w-full px-4 py-2 border-white/40 border-2 rounded-lg outline-none"
@@ -23,8 +22,7 @@
     @if (SearchResults?.Any() ?? false) {
         <div class="absolute bg-white/40 border-white/40 border-2 top-full mt-2 rounded-lg left-0 right-0 backdrop-blur-sm overflow-auto">
             <ol>
-                @foreach (GeocodeOption result in TopResults)
-                {
+                @foreach (GeocodeOption result in SearchResults.Take(5)) {
                     <li>
                         <LocationSearchResult 
                             City=@(result.City) 
@@ -40,110 +38,39 @@
 </form>
 
 @code {
+    [Parameter] public Action<GeocodeOption> OnResultSelected {get;set;} = (opt) => {};
+
     // TODO: Geo-biasing when user location is available
     // TODO: Some way to detect ratelimiting so we can somehow switch geocoders/indicate service unavailable
 
     // TomTom's API (used for geocoding & search completion) has a per-second
     // and per-day rate limit so we use a fixed update interval while the user is typing
     // to avoid rapid depletion of either cap.
-    private const int RESULTS_INTERVAL_MILLISECONDS = 500;
-    private const int MAX_NUM_FETCHED_RESULTS = 50;
     private const int MINIMUM_FILTER_LENGTH = 3;
-    private const float FUZZ_MIN = 0.00f;
+    private const float FUZZ_MIN = 0.50f;
+
+    [Inject] private LocationSearchService locationSearchService {get;set;} = null!;
 
     private List<GeocodeOption>? SearchResults = null;
-    private IEnumerable<GeocodeOption> TopResults
+
+    protected override void OnInitialized()
     {
-        get => SearchResults?.Take(5) ?? Enumerable.Empty<GeocodeOption>(); 
+        locationSearchService.ResultsUpdated += (results) => {
+            SearchResults = results.ToList();
+            InvokeAsync(StateHasChanged);
+        };
     }
-
-    private bool timerStarted = false;
-    private string query {get;set;} = "";
-    private string? previousQuery = null;
-
-    private CancellationTokenSource? mostRecentResultsJob;
-
-    [Inject] private PeriodicJobService periodicJobService {get;set;} = null!;
-    [Inject] private GeocodingService geocodingService {get;set;} = null!;
 
     private void QueryChanged(ChangeEventArgs args)
     {
-        query = args.Value?.ToString() ?? "";
+        string newQuery = args.Value?.ToString() ?? "";
 
-        // When below threshold, we should clear existing results and stop the timer
-        if (query.Trim().Length < MINIMUM_FILTER_LENGTH)
-        {
-            StopSearchResultsJob();
+        locationSearchService.UpdateQuery(newQuery);
+
+        // clear search results when box is cleared
+        if (string.IsNullOrWhiteSpace(newQuery)) {
             SearchResults = null;
-            previousQuery = null;
-
-            return;
         }
-
-        // We now have enough of a filter to start results. If the timer hasn't started yet, start it.
-        if (!timerStarted)
-        {
-            StartSearchResultsJob();
-        }
-    }
-
-    private void SearchResultsJob(PeriodicJobService.PeriodicJobArgs jobArgs)
-    {
-        // detect whether the user has changed the field since the last update tick
-        string currentQuery = query.Trim();
-
-        if (previousQuery != null && currentQuery == previousQuery)
-        {
-            StopSearchResultsJob();
-            previousQuery = null;
-        }
-
-        // the user has indeed changed the field since the last tick
-        previousQuery = currentQuery;
-
-        // Cancel the possibly currently running update job
-        if (mostRecentResultsJob != null)
-        {
-            mostRecentResultsJob.Cancel();
-        }
-
-        // Start a new job
-        mostRecentResultsJob = new();
-        _ = UpdateSearchResults(query, mostRecentResultsJob.Token);
-    }
-
-    private void StartSearchResultsJob()
-    {
-        periodicJobService.Jobs += SearchResultsJob;
-        periodicJobService.Start(
-            TimeSpan.FromMilliseconds(RESULTS_INTERVAL_MILLISECONDS),
-            triggerImmediately: true
-        );
-
-        timerStarted = true;
-    }
-
-    private void StopSearchResultsJob()
-    {
-        periodicJobService.Stop(clearJobs: true);
-        timerStarted = false;
-    }
-
-    private async Task UpdateSearchResults(string filter, CancellationToken ct)
-    {
-        var results = await geocodingService.GetCitySuggestions(filter, MAX_NUM_FETCHED_RESULTS, ct);
-        if (results == null || ct.IsCancellationRequested)
-        {
-            // If cancellation is requested, a newer request has completed while we were waiting
-            return;
-        }
-
-        SearchResults = results
-                            .Where(option => option.Confidence > FUZZ_MIN)
-                            .OrderByDescending(result => result.Confidence)
-                            .ToList();
-                            
-        await InvokeAsync(StateHasChanged);
     }
 
     private void HandleItemClicked(GeocodeOption selected)

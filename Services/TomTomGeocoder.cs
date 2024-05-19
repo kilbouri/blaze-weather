@@ -7,20 +7,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using BlazeWeather.Models.Domain;
 using BlazeWeather.Models.TomTom;
-using FuzzySharp;
+using BlazeWeather.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace BlazeWeather.Services;
 
-public class GeocodingService
+public class TomTomGeocoder : IGeocoder
 {
-
 	private readonly HttpClient httpClient;
 	private readonly string tomtomApiKey;
-	private readonly ILogger<GeocodingService> logger;
+	private readonly ILogger<TomTomGeocoder> logger;
 
-	public GeocodingService(HttpClient httpClient, IOptions<AppSettings> opts, ILogger<GeocodingService> logger)
+	public TomTomGeocoder(HttpClient httpClient, IOptions<AppSettings> opts, ILogger<TomTomGeocoder> logger)
 	{
 		this.httpClient = httpClient;
 		this.tomtomApiKey = opts.Value.TomTomApiKey;
@@ -81,7 +80,6 @@ public class GeocodingService
 			}.Uri;
 
 			logger.LogInformation("Request URI: {Uri}", apiUri.AbsoluteUri);
-
 
 			return await httpClient.GetFromJsonAsync<GeocodingSearchResult>(apiUri, token);
 		}
