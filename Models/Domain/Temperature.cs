@@ -47,4 +47,13 @@ public readonly struct Temperature {
             _ => throw new NotImplementedException($"{newUnit} is not a known TemperatureUnit"),
         };
     }
+
+    public override string ToString()
+    {
+        return Degrees.ToString() + "°" + (Unit switch {
+            TemperatureUnit.Celsius => "C",
+            TemperatureUnit.Fahrenheit => "F",
+            _ => throw new NotImplementedException($"{Unit} is not a known TemperatureUnit")
+        });
+    }
 }

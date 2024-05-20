@@ -3,9 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace BlazeWeather.Models.TomTom;
 
+// https://developer.tomtom.com/search-api/documentation/search-service/fuzzy-search
 public class GeocodingSearchResponse
 {
-
 	public class SearchSummary
 	{
 		public string Query { get; set; } = null!;
@@ -14,21 +14,18 @@ public class GeocodingSearchResponse
 
 	public class SearchResult
 	{
-		[JsonConverter(typeof(JsonStringEnumConverter))]
-		public enum ResultType
-		{
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public enum ResultType
+        {
 			Unknown = 0, // not part of API, intended to be used for "invalids"
 
-			[JsonPropertyName("Street")] Street = 1,
-			[JsonPropertyName("Geography")] Geography = 2,
-			[JsonPropertyName("Point Address")] PointAddress = 3,
-			[JsonPropertyName("Address Range")] AddressRange = 4,
-			[JsonPropertyName("Cross Street")] CrossStreet = 5
-		}
-
-		public class ResultConfidence
-		{
-			public float Score { get; set; }
+			[JsonPropertyName("POI")] PointOfInterest = 1,
+			[JsonPropertyName("Street")] Street = 2,
+			[JsonPropertyName("Geography")] Geography = 3,
+			[JsonPropertyName("Point Address")] PointAddress = 4,
+			[JsonPropertyName("Address Range")] AddressRange = 5,
+			[JsonPropertyName("Cross Street")] CrossStreet = 6
+            
 		}
 
 		public class ResultAddress
@@ -58,10 +55,15 @@ public class GeocodingSearchResponse
 		}
 
 		public ResultType Type { get; set; }
-		public ResultConfidence MatchConfidence { get; set; } = null!;
+
+        /// <summary>Distance to the geobias, if one was provided in the query</summary>
+        public double Dist {get;set;}
+
+        /// <summary>Approximately, the confidence in the result. Higher means more likely to meet search criteria</summary>
+        public double Score {get;set;}
+
 		public ResultAddress Address { get; set; } = null!;
 		public LatitudeLongitude Position { get; set; } = null!;
-
 	}
 
 	public SearchSummary Summary { get; set; } = null!;

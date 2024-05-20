@@ -55,7 +55,8 @@ public class TomTomGeocoderService : IGeocoderService
 								City = result.Address.Municipality,
 								State = result.Address.CountrySubdivision,
 								Country = result.Address.Country,
-								Confidence = result.MatchConfidence.Score,
+                                Distance = result.Dist,
+                                Confidence = result.Score,
 								ResolvedGeocode = new Geocode()
 								{
 									Latitude = result.Position.Lat,
@@ -80,7 +81,7 @@ public class TomTomGeocoderService : IGeocoderService
             {
                 Scheme = "https",
                 Host = "api.tomtom.com",
-                Path = $"search/2/geocode/{location}.json",
+                Path = $"search/2/search/{location}.json",
                 Query = $"key={tomtomApiKey}&limit={limit}&entityTypeSet={ENTITY_TYPE_SET}&typeahead=true&{geobias}",
             }.Uri;
 

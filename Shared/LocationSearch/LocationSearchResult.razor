@@ -11,7 +11,7 @@
     [Parameter] public string City { get; set; } = null!;
     [Parameter] public string State { get; set; } = null!;
     [Parameter] public string Country { get; set; } = null!;
-    [Parameter] public float? Confidence { get; set; } = null;
+    [Parameter] public double? Confidence { get; set; } = null;
 
     [Inject] private IWebHostEnvironment environment {get;set;} = null!;
 

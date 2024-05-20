@@ -25,11 +25,11 @@
                 @foreach (GeocodeOption result in SearchResults.Take(5)) {
                     <li>
                         <LocationSearchResult 
-                            City=@(result.City) 
-                            State=@(result.State) 
-                            Country=@(result.Country) 
-                            Confidence=@(result.Confidence)
-                            OnSelect=@(() => HandleItemClicked(result))
+                            City="@(result.City)"
+                            State="@(result.State)"
+                            Country="@(result.Country)"
+                            Confidence="@(result.Confidence)"
+                            OnSelect="@(() => HandleItemClicked(result))"
                         />
                     </li>
                 }
