@@ -55,17 +55,17 @@ public class IpGeolocationService : IGeolocationService
         try
         {
             string ipQuery = ipAddress != null ? $"ip={ipAddress}" : "";
-			Uri apiUri = new UriBuilder()
-			{
-				Scheme = "https",
-				Host = "api.ipgeolocation.io",
-				Path = $"ipgeo",
-				Query = $"apiKey={ipgeoApiKey}&fields={REQUIRED_FIELDS}&{ipQuery}",
-			}.Uri;
+            Uri apiUri = new UriBuilder()
+            {
+                Scheme = "https",
+                Host = "api.ipgeolocation.io",
+                Path = $"ipgeo",
+                Query = $"apiKey={ipgeoApiKey}&fields={REQUIRED_FIELDS}&{ipQuery}",
+            }.Uri;
 
-			logger.LogInformation("Request URI: {Uri}", apiUri.AbsoluteUri);
+            logger.LogInformation("Request URI: {Uri}", apiUri.AbsoluteUri);
 
-			return await httpClient.GetFromJsonAsync<IpGeolocationLookupResponse>(apiUri);
+            return await httpClient.GetFromJsonAsync<IpGeolocationLookupResponse>(apiUri);
         }
         catch (HttpRequestException exception)
         {
