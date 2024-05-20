@@ -25,7 +25,7 @@ public class TomTomGeocoderService : IGeocoderService
 		this.logger = logger;
 	}
 
-	public async Task<IEnumerable<GeocodeOption>> GetCitySuggestions(string city, int limit = 5, CancellationToken token = default)
+	public async Task<IEnumerable<GeocodeOption>> GetCitySuggestions(string city, int limit = 5, Geocode? bias = null, CancellationToken token = default)
 	{
 		if (limit <= 0)
 		{
@@ -40,7 +40,7 @@ public class TomTomGeocoderService : IGeocoderService
 			limit = API_MAX_RESULTS;
 		}
 
-		GeocodingSearchResponse? searchResults = await GetDirectCityGeocoding(city, limit, token);
+		GeocodingSearchResponse? searchResults = await GetDirectCityGeocoding(city, limit, bias, token);
 		if (searchResults == null)
 		{
 			logger.LogWarning("Failed to retrieve geocode suggestions for {Location}", city);
@@ -49,7 +49,7 @@ public class TomTomGeocoderService : IGeocoderService
 
 		logger.LogInformation("Retrieved {Count} geocode suggestions for {Location}", searchResults.Results.Count, city);
 
-		return searchResults.Results
+		IEnumerable<GeocodeOption> options = searchResults.Results
 							.Select(result => new GeocodeOption
 							{
 								City = result.Address.Municipality,
@@ -62,21 +62,27 @@ public class TomTomGeocoderService : IGeocoderService
 									Longitude = result.Position.Lon
 								}
 							});
+
+        logger.LogInformation("Parsed {Count} geocode suggestions for {Location}", searchResults.Results.Count, city);
+        return options;
 	}
 
-	private async Task<GeocodingSearchResponse?> GetDirectCityGeocoding(string location, int limit, CancellationToken token = default)
+	private async Task<GeocodingSearchResponse?> GetDirectCityGeocoding(string location, int limit, Geocode? bias, CancellationToken token = default)
 	{
 		try
 		{
 			// Municipality = City, CountrySubdivision = State/Province/Territory/etc., Country = Country
 			const string ENTITY_TYPE_SET = "Municipality";
-			Uri apiUri = new UriBuilder()
-			{
-				Scheme = "https",
-				Host = "api.tomtom.com",
-				Path = $"search/2/geocode/{location}.json",
-				Query = $"key={tomtomApiKey}&limit={limit}&entityTypeSet={ENTITY_TYPE_SET}&typeahead=true",
-			}.Uri;
+            
+            string geobias = bias != null ? $"lat={bias.Value.Latitude}&lon={bias.Value.Longitude}" : "";
+
+            Uri apiUri = new UriBuilder()
+            {
+                Scheme = "https",
+                Host = "api.tomtom.com",
+                Path = $"search/2/geocode/{location}.json",
+                Query = $"key={tomtomApiKey}&limit={limit}&entityTypeSet={ENTITY_TYPE_SET}&typeahead=true",
+            }.Uri;
 
 			logger.LogInformation("Request URI: {Uri}", apiUri.AbsoluteUri);
 

@@ -13,16 +13,29 @@
         <BlazeLogo />
     </h1>
 
-    <LocationSearch />
+    <LocationSearch Geobias=@(geobias) />
 </div>
+
+@if (geobias.HasValue)
+{
+    <div class="absolute bottom-0 text-white/50 p-1 text-xs flex items-center">
+        <span data-glyph="location" class="oi"></span>
+        <span class="ps-1 pb-[1px]">@(geobias.Value.Latitude), @(geobias.Value.Longitude)</span>
+    </div>
+}
 
 @code {
     [Inject] BlazeWeatherContext context {get;set;} = null!;
     [Inject] IGeolocationService geolocationService {get;set;} = null!;
     [Inject] IWebHostEnvironment environment {get;set;} = null!;
 
+    private Geocode? geobias = null;
+
     protected override async Task OnInitializedAsync()
     {
+        // During development the IP will be a local one, and thus not
+        // possible to geocode. Therefore, we null it out to use the server's
+        // IP for geolocation (since they are the same machine)
         if (environment.IsDevelopment()) {
             context.CurrentUserIP = null;
         }
@@ -30,9 +43,9 @@
         if (!environment.IsDevelopment() && context.CurrentUserIP == null) {
             Console.WriteLine("Failed to retrieve user IP address for geolocation");
         } else {
-            Geocode? geocode = await geolocationService.GeolocateIpAddress(context.CurrentUserIP);
-            if (geocode.HasValue) {
-                Console.WriteLine(geocode.Value);
+            geobias = await geolocationService.GeolocateIpAddress(context.CurrentUserIP);
+            if (geobias.HasValue) {
+                Console.WriteLine(geobias.Value);
             } else {
                 Console.WriteLine("Failed to geocode user IP address");
             }

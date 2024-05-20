@@ -1,3 +1,6 @@
+@using Microsoft.AspNetCore.Hosting;
+@using Microsoft.Extensions.Hosting;
+
 <button type="button" onclick=@(OnSelect) class="flex gap-2 items-baseline hover:bg-white/20 w-full h-full p-4 py-2">
     <span class="text-zinc-800 font-bold">@(City)</span>
     <span class="text-zinc-700 font-medium text-sm">@(GetRegionString())</span>
@@ -5,9 +8,12 @@
 
 @code {
     [Parameter] public Action OnSelect {get;set;} = () => { return; };
-    [Parameter] public string City { get; set; } = "";
-    [Parameter] public string State { get; set; } = "";
-    [Parameter] public string Country { get; set; } = "";
+    [Parameter] public string City { get; set; } = null!;
+    [Parameter] public string State { get; set; } = null!;
+    [Parameter] public string Country { get; set; } = null!;
+    [Parameter] public float? Confidence { get; set; } = null;
+
+    [Inject] private IWebHostEnvironment environment {get;set;} = null!;
 
     private string GetRegionString()
     {
@@ -21,6 +27,10 @@
         if (!string.IsNullOrWhiteSpace(Country))
         {
             components.Add(Country);
+        }
+
+        if (environment.IsDevelopment() && Confidence != null) {
+            components.Add(Confidence.ToString());
         }
 
         return string.Join(", ", components);

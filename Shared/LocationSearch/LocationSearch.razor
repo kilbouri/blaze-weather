@@ -28,6 +28,7 @@
                             City=@(result.City) 
                             State=@(result.State) 
                             Country=@(result.Country) 
+                            Confidence=@(result.Confidence)
                             OnSelect=@(() => HandleItemClicked(result))
                         />
                     </li>
@@ -38,26 +39,30 @@
 </form>
 
 @code {
+    [Parameter] public Geocode? Geobias {get;set;} = null;
     [Parameter] public Action<GeocodeOption> OnResultSelected {get;set;} = (r) => {};
-
-    // TODO: Geo-biasing when user location is available
-    // TODO: Some way to detect ratelimiting so we can somehow switch geocoders/indicate service unavailable
-
-    private const float MIN_CONFIDENCE = 0.50f;
 
     [Inject] private LocationSearchService locationSearchService {get;set;} = null!;
 
-    private List<GeocodeOption>? SearchResults = null;
+    // TODO: Some way to detect ratelimiting so we can somehow switch geocoders/indicate service unavailable
+
+    List<GeocodeOption>? SearchResults;
 
     protected override void OnInitialized()
     {
         locationSearchService.ResultsUpdated += (results) => {
-            SearchResults = results
-                                .Where(result => result.Confidence >= MIN_CONFIDENCE)
+            Console.WriteLine(results.Count());
+            this.SearchResults = results
+                                .OrderByDescending(result => result.Confidence)
                                 .ToList();
 
             InvokeAsync(StateHasChanged);
         };
+    }
+
+    protected override void OnParametersSet()
+    {
+        locationSearchService.UpdateGeobias(Geobias);
     }
 
     private void QueryChanged(ChangeEventArgs args)

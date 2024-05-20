@@ -16,17 +16,17 @@ using GeocodeOptions = IEnumerable<GeocodeOption>;
 // to avoid rapid depletion of either cap.
 public class LocationSearchService
 {
+    public event Action<GeocodeOptions>? ResultsUpdated;
+
     private readonly IGeocoderService geocoder;
     private readonly ILogger<LocationSearchService> logger;
     private readonly PeriodicJobService periodicJobService;
 
     private string? lastQuery = null;
     private string? query = null;
+    private Geocode? geobias = null;
 
     private CancellationTokenSource? mostRecentJobTokenSource = null;
-    private GeocodeOptions? mostRecentResults = null;
-
-    public event Action<GeocodeOptions>? ResultsUpdated;
 
     public LocationSearchService(IGeocoderService geocoder, PeriodicJobService periodicJobService, ILogger<LocationSearchService> logger)
     {
@@ -40,17 +40,12 @@ public class LocationSearchService
     public void UpdateQuery(string newQuery)
     {
         query = newQuery;
-        periodicJobService.Start(TimeSpan.FromMilliseconds(500), !periodicJobService.IsRunning);
+        QueryParametersChanged();
     }
 
-    public GeocodeOptions GetResults()
-    {
-        if (mostRecentResults == null)
-        {
-            return Enumerable.Empty<GeocodeOption>();
-        }
-
-        return mostRecentResults.ToList();
+    public void UpdateGeobias(Geocode? newGeocode) {
+        geobias = newGeocode;
+        QueryParametersChanged();
     }
 
     private void PeriodicUpdateJob(PeriodicJobService.PeriodicJobArgs args)
@@ -80,7 +75,7 @@ public class LocationSearchService
         CancellationTokenSource? previousJobSource = mostRecentJobTokenSource;
         mostRecentJobTokenSource = new();
 
-        var newResults = await geocoder.GetCitySuggestions(query, 50, mostRecentJobTokenSource.Token);
+        var newResults = await geocoder.GetCitySuggestions(query, limit: 50, geobias, mostRecentJobTokenSource.Token);
 
         // cancel the previous job if there is one, as its results are now outdated
         previousJobSource?.Cancel();
@@ -88,12 +83,16 @@ public class LocationSearchService
         if (mostRecentJobTokenSource.IsCancellationRequested)
         {
             // a subsequent job already completed, these results are outdated
+            logger.LogWarning("Fetched {Count} results for '{Query}', but they are already outdated", newResults.Count(), query);
             return;
         }
 
         // Update results with the newly fetched results
-        mostRecentResults = newResults;
         ResultsUpdated?.Invoke(newResults);
         logger.LogInformation("Fetched {Count} updated results for '{Query}'", newResults.Count(), query);
+    }
+
+    private void QueryParametersChanged() {
+        periodicJobService.Start(TimeSpan.FromMilliseconds(250), !periodicJobService.IsRunning);
     }
 }

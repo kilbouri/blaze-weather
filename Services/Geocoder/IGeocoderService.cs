@@ -6,5 +6,5 @@ using BlazeWeather.Models.Domain;
 namespace BlazeWeather.Services.Geocoders;
 
 public interface IGeocoderService {
-    Task<IEnumerable<GeocodeOption>> GetCitySuggestions(string city, int limit = 5, CancellationToken token = default);
+    Task<IEnumerable<GeocodeOption>> GetCitySuggestions(string city, int limit = 5, Geocode? bias = null, CancellationToken token = default);
 }

@@ -34,14 +34,9 @@ public class PeriodicJobService
         timer.Start();
 	}
 
-	public void Stop(bool clearJobs = false)
+	public void Stop()
 	{
         timer.Stop();
-        
-		if (clearJobs)
-		{
-			Jobs = null;
-		}
 	}
 
 	private void HandleTimer()
