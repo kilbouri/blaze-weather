@@ -13,3 +13,12 @@
 
     <LocationSearch />
 </div>
+
+@code {
+    [Inject] BlazeWeatherContext Context {get;set;} = null!;
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("Loaded Index! IP: " + Context.CurrentUserIP);
+    }
+}

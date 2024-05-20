@@ -1,4 +1,5 @@
 using BlazeWeather;
+using BlazeWeather.Models;
 using BlazeWeather.Services;
 using BlazeWeather.Services.Geocoders;
 using BlazeWeather.Services.Weather;
@@ -12,6 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
+
+// Add the app context. It is required to be Scoped so that it is re-created for each client.
+builder.Services.AddScoped<BlazeWeatherContext>();
 
 // Blaze Weather services
 builder.Services.AddSingleton<IWeatherService, OpenWeatherAPIWeatherService>();
@@ -29,7 +34,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-	app.UseExceptionHandler("/Error");
+	app.UseExceptionHandler("/error");
 	// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 	app.UseHsts();
 }

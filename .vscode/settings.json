@@ -12,26 +12,4 @@
     },
     "files.eol": "\r\n",
     "editor.formatOnSave": false,
-    "saveEditorLayout.list": [
-        {
-            "name": "Blazor",
-            "documents": [
-                {
-                    "fsPath": "d:\\Repositories\\blaze-weather\\Pages\\Index.razor",
-                    "column": 1
-                }
-            ],
-            "layout": {
-                "orientation": 0,
-                "groups": [
-                    {
-                        "size": 1280
-                    },
-                    {
-                        "size": 564
-                    }
-                ]
-            }
-        }
-    ]
 }

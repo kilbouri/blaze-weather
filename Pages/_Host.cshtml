@@ -1,7 +1,17 @@
 ﻿@page "/"
-@using Microsoft.AspNetCore.Components.Web
 @namespace BlazeWeather.Pages
+
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Components.Web
+
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@* Based on this StackOverflow answer: https://stackoverflow.com/a/75908259 *@
+@inject IHttpContextAccessor httpContextAccessor
+@{
+    // DO NOT set visibility on this! idk why but that awakens the transpiler error demons
+    string? remoteIpAddress = httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +65,7 @@
         </environment>
     </div>
 
-    <component type="typeof(App)" render-mode="ServerPrerendered" />
+    <component type="typeof(App)" param-RemoteIpAddress=remoteIpAddress render-mode="ServerPrerendered" />
     
     <script src="_framework/blazor.server.js"></script>
 </body>

@@ -1,4 +1,6 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+﻿@using BlazeWeather.Models
+
+<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -10,3 +12,12 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+    [Parameter] public string? RemoteIpAddress {get;set;} = null!;
+    [Inject] private BlazeWeatherContext appContext {get;set;} = null!;
+
+    protected override void OnInitialized() {
+        this.appContext.CurrentUserIP = this.RemoteIpAddress;
+    }
+}
