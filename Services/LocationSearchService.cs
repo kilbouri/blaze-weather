@@ -37,7 +37,7 @@ public class LocationSearchService
     public void UpdateQuery(string newQuery)
     {
         query = newQuery;
-        periodicJobService.Start(TimeSpan.FromMilliseconds(250), !periodicJobService.IsRunning);
+        periodicJobService.Start(TimeSpan.FromMilliseconds(500), !periodicJobService.IsRunning);
     }
 
     public GeocodeOptions GetResults()
@@ -52,14 +52,13 @@ public class LocationSearchService
 
     private void PeriodicUpdateJob(PeriodicJobService.PeriodicJobArgs args)
     {
-        bool queryChanged = lastQuery != null && lastQuery == query;
+        bool queryChanged = lastQuery == null || lastQuery != query;
         lastQuery = query;
 
-        if (queryChanged && !string.IsNullOrWhiteSpace(query))
+        if (!queryChanged || string.IsNullOrWhiteSpace(query))
         {
             // Either the query hasn't changed since last tick, or this tick we have no meaningful query.
             // We can safely stop the timer and resume it next time the query is updated.
-
             periodicJobService.Stop();
             return;
         }
@@ -92,5 +91,6 @@ public class LocationSearchService
         // Update results with the newly fetched results
         mostRecentResults = newResults;
         ResultsUpdated?.Invoke(newResults);
+        logger.LogInformation("Fetched {Count} updated results for '{Query}'", newResults.Count(), query);
     }
 }

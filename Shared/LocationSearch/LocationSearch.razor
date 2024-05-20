@@ -38,7 +38,7 @@
 </form>
 
 @code {
-    [Parameter] public Action<GeocodeOption> OnResultSelected {get;set;} = (opt) => {};
+    [Parameter] public Action<GeocodeOption> OnResultSelected {get;set;} = default;
 
     // TODO: Geo-biasing when user location is available
     // TODO: Some way to detect ratelimiting so we can somehow switch geocoders/indicate service unavailable
@@ -47,7 +47,7 @@
     // and per-day rate limit so we use a fixed update interval while the user is typing
     // to avoid rapid depletion of either cap.
     private const int MINIMUM_FILTER_LENGTH = 3;
-    private const float FUZZ_MIN = 0.50f;
+    private const float MIN_CONFIDENCE = 0.50f;
 
     [Inject] private LocationSearchService locationSearchService {get;set;} = null!;
 
@@ -56,7 +56,10 @@
     protected override void OnInitialized()
     {
         locationSearchService.ResultsUpdated += (results) => {
-            SearchResults = results.ToList();
+            SearchResults = results
+                                .Where(result => result.Confidence >= MIN_CONFIDENCE)
+                                .ToList();
+
             InvokeAsync(StateHasChanged);
         };
     }
