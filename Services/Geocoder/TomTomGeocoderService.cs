@@ -81,7 +81,7 @@ public class TomTomGeocoderService : IGeocoderService
                 Scheme = "https",
                 Host = "api.tomtom.com",
                 Path = $"search/2/geocode/{location}.json",
-                Query = $"key={tomtomApiKey}&limit={limit}&entityTypeSet={ENTITY_TYPE_SET}&typeahead=true",
+                Query = $"key={tomtomApiKey}&limit={limit}&entityTypeSet={ENTITY_TYPE_SET}&typeahead=true&{geobias}",
             }.Uri;
 
 			logger.LogInformation("Request URI: {Uri}", apiUri.AbsoluteUri);
