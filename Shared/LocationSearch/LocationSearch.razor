@@ -38,15 +38,11 @@
 </form>
 
 @code {
-    [Parameter] public Action<GeocodeOption> OnResultSelected {get;set;} = default;
+    [Parameter] public Action<GeocodeOption> OnResultSelected {get;set;} = (r) => {};
 
     // TODO: Geo-biasing when user location is available
     // TODO: Some way to detect ratelimiting so we can somehow switch geocoders/indicate service unavailable
 
-    // TomTom's API (used for geocoding & search completion) has a per-second
-    // and per-day rate limit so we use a fixed update interval while the user is typing
-    // to avoid rapid depletion of either cap.
-    private const int MINIMUM_FILTER_LENGTH = 3;
     private const float MIN_CONFIDENCE = 0.50f;
 
     [Inject] private LocationSearchService locationSearchService {get;set;} = null!;

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace BlazeWeather.Models.TomTom;
 
-public class GeocodingSearchResult
+public class GeocodingSearchResponse
 {
 
 	public class SearchSummary
@@ -53,8 +53,8 @@ public class GeocodingSearchResult
 
 		public class LatitudeLongitude
 		{
-			public float Lat { get; set; }
-			public float Lon { get; set; }
+			public double Lat { get; set; }
+			public double Lon { get; set; }
 		}
 
 		public ResultType Type { get; set; }

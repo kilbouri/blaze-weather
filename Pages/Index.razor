@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.Extensions.Hosting
 
 <div
     id="searchContainer"
@@ -15,10 +17,25 @@
 </div>
 
 @code {
-    [Inject] BlazeWeatherContext Context {get;set;} = null!;
+    [Inject] BlazeWeatherContext context {get;set;} = null!;
+    [Inject] IGeolocationService geolocationService {get;set;} = null!;
+    [Inject] IWebHostEnvironment environment {get;set;} = null!;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine("Loaded Index! IP: " + Context.CurrentUserIP);
+        if (environment.IsDevelopment()) {
+            context.CurrentUserIP = null;
+        }
+
+        if (!environment.IsDevelopment() && context.CurrentUserIP == null) {
+            Console.WriteLine("Failed to retrieve user IP address for geolocation");
+        } else {
+            Geocode? geocode = await geolocationService.GeolocateIpAddress(context.CurrentUserIP);
+            if (geocode.HasValue) {
+                Console.WriteLine(geocode.Value);
+            } else {
+                Console.WriteLine("Failed to geocode user IP address");
+            }
+        }
     }
 }

@@ -13,6 +13,7 @@
     </NotFound>
 </Router>
 
+@* Based on this StackOverflow answer: https://stackoverflow.com/a/75908259 *@
 @code {
     [Parameter] public string? RemoteIpAddress {get;set;} = null!;
     [Inject] private BlazeWeatherContext appContext {get;set;} = null!;

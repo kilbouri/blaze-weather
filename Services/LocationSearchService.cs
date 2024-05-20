@@ -11,6 +11,9 @@ namespace BlazeWeather.Services;
 
 using GeocodeOptions = IEnumerable<GeocodeOption>;
 
+// TomTom's API (used for geocoding & search completion) has a per-second
+// and per-day rate limit so we use a fixed update interval while the user is typing
+// to avoid rapid depletion of either cap.
 public class LocationSearchService
 {
     private readonly IGeocoderService geocoder;

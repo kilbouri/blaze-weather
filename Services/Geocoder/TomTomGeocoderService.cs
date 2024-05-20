@@ -40,7 +40,7 @@ public class TomTomGeocoderService : IGeocoderService
 			limit = API_MAX_RESULTS;
 		}
 
-		GeocodingSearchResult? searchResults = await GetDirectCityGeocoding(city, limit, token);
+		GeocodingSearchResponse? searchResults = await GetDirectCityGeocoding(city, limit, token);
 		if (searchResults == null)
 		{
 			logger.LogWarning("Failed to retrieve geocode suggestions for {Location}", city);
@@ -64,7 +64,7 @@ public class TomTomGeocoderService : IGeocoderService
 							});
 	}
 
-	private async Task<GeocodingSearchResult?> GetDirectCityGeocoding(string location, int limit, CancellationToken token = default)
+	private async Task<GeocodingSearchResponse?> GetDirectCityGeocoding(string location, int limit, CancellationToken token = default)
 	{
 		try
 		{
@@ -80,7 +80,7 @@ public class TomTomGeocoderService : IGeocoderService
 
 			logger.LogInformation("Request URI: {Uri}", apiUri.AbsoluteUri);
 
-			return await httpClient.GetFromJsonAsync<GeocodingSearchResult>(apiUri, token);
+			return await httpClient.GetFromJsonAsync<GeocodingSearchResponse>(apiUri, token);
 		}
 		catch (HttpRequestException)
 		{
