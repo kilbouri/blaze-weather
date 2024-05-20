@@ -13,7 +13,7 @@ using GeocodeOptions = IEnumerable<GeocodeOption>;
 
 public class LocationSearchService
 {
-    private readonly IGeocoder geocoder;
+    private readonly IGeocoderService geocoder;
     private readonly ILogger<LocationSearchService> logger;
     private readonly PeriodicJobService periodicJobService;
 
@@ -25,7 +25,7 @@ public class LocationSearchService
 
     public event Action<GeocodeOptions>? ResultsUpdated;
 
-    public LocationSearchService(IGeocoder geocoder, PeriodicJobService periodicJobService, ILogger<LocationSearchService> logger)
+    public LocationSearchService(IGeocoderService geocoder, PeriodicJobService periodicJobService, ILogger<LocationSearchService> logger)
     {
         this.geocoder = geocoder;
         this.periodicJobService = periodicJobService;

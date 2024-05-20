@@ -19,20 +19,11 @@ public class GeocodingSearchResult
 		{
 			Unknown = 0, // not part of API, intended to be used for "invalids"
 
-			[JsonPropertyName("Street")]
-			Street = 1,
-
-			[JsonPropertyName("Geography")]
-			Geography = 2,
-
-			[JsonPropertyName("Point Address")]
-			PointAddress = 3,
-
-			[JsonPropertyName("Address Range")]
-			AddressRange = 4,
-
-			[JsonPropertyName("Cross Street")]
-			CrossStreet = 5
+			[JsonPropertyName("Street")] Street = 1,
+			[JsonPropertyName("Geography")] Geography = 2,
+			[JsonPropertyName("Point Address")] PointAddress = 3,
+			[JsonPropertyName("Address Range")] AddressRange = 4,
+			[JsonPropertyName("Cross Street")] CrossStreet = 5
 		}
 
 		public class ResultConfidence

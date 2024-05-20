@@ -12,13 +12,13 @@ using Microsoft.Extensions.Options;
 
 namespace BlazeWeather.Services.Geocoders;
 
-public class TomTomGeocoder : IGeocoder
+public class TomTomGeocoderService : IGeocoderService
 {
 	private readonly HttpClient httpClient;
 	private readonly string tomtomApiKey;
-	private readonly ILogger<TomTomGeocoder> logger;
+	private readonly ILogger<TomTomGeocoderService> logger;
 
-	public TomTomGeocoder(HttpClient httpClient, IOptions<AppSettings> opts, ILogger<TomTomGeocoder> logger)
+	public TomTomGeocoderService(HttpClient httpClient, IOptions<AppSettings> opts, ILogger<TomTomGeocoderService> logger)
 	{
 		this.httpClient = httpClient;
 		this.tomtomApiKey = opts.Value.TomTomApiKey;

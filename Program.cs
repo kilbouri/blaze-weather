@@ -1,6 +1,7 @@
 using BlazeWeather;
 using BlazeWeather.Services;
 using BlazeWeather.Services.Geocoders;
+using BlazeWeather.Services.Weather;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,8 +14,8 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient();
 
 // Blaze Weather services
-builder.Services.AddSingleton<WeatherService>();
-builder.Services.AddSingleton<IGeocoder, TomTomGeocoder>();
+builder.Services.AddSingleton<IWeatherService, OpenWeatherAPIWeatherService>();
+builder.Services.AddSingleton<IGeocoderService, TomTomGeocoderService>();
 builder.Services.AddScoped<LocationSearchService>();
 
 // Utility services
