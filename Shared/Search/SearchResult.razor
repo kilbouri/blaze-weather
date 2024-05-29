@@ -1,13 +1,17 @@
 @using Microsoft.AspNetCore.Hosting;
 @using Microsoft.Extensions.Hosting;
 
-<button type="button" onclick=@(OnSelect) class="flex gap-2 items-baseline hover:bg-white/20 w-full h-full p-4 py-2">
-    <span class="text-zinc-800 font-bold">@(City)</span>
-    <span class="text-zinc-700 font-medium text-sm">@(GetRegionString())</span>
+<button
+    type="button"
+    class="w-full flex gap-2 items-baseline first:rounded-t-lg last:rounded-b-lg p-4 py-2 hover:bg-white/10 focus:bg-white/10"
+    @onclick=@(OnSelect) 
+>
+    <span class="text-zinc-300 font-bold">@(City)</span>
+    <span class="text-zinc-400 font-medium text-sm">@(GetRegionString())</span>
 </button>
 
 @code {
-    [Parameter] public Action OnSelect {get;set;} = () => { };
+    [Parameter] public Action OnSelect {get;set;} = () => { return; };
     [Parameter] public string City { get; set; } = null!;
     [Parameter] public string State { get; set; } = null!;
     [Parameter] public string Country { get; set; } = null!;

@@ -22,6 +22,7 @@ public class LocationSearchService
     private readonly ILogger<LocationSearchService> logger;
     private readonly PeriodicJobService periodicJobService;
 
+    private bool suspended = false;
     private string? lastQuery = null;
     private string? query = null;
     private Geocode? geobias = null;
@@ -40,12 +41,25 @@ public class LocationSearchService
     public void UpdateQuery(string newQuery)
     {
         query = newQuery;
-        QueryParametersChanged();
+        StartFetchJob();
     }
 
-    public void UpdateGeobias(Geocode? newGeocode) {
+    public void UpdateGeobias(Geocode? newGeocode)
+    {
         geobias = newGeocode;
-        QueryParametersChanged();
+        StartFetchJob();
+    }
+
+    public void Suspend()
+    {
+        suspended = true;
+        periodicJobService.Stop();
+    }
+
+    public void Resume()
+    {
+        suspended = false;
+        StartFetchJob();
     }
 
     private void PeriodicUpdateJob(PeriodicJobService.PeriodicJobArgs args)
@@ -92,7 +106,10 @@ public class LocationSearchService
         logger.LogInformation("Fetched {Count} updated results for '{Query}'", newResults.Count(), query);
     }
 
-    private void QueryParametersChanged() {
-        periodicJobService.Start(TimeSpan.FromMilliseconds(250), !periodicJobService.IsRunning);
+    private void StartFetchJob() {
+        if (!suspended)
+        {
+            periodicJobService.Start(TimeSpan.FromMilliseconds(250), !periodicJobService.IsRunning);
+        }
     }
 }

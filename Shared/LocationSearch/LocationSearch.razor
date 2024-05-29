@@ -1,25 +1,29 @@
 <form class="max-w-lg w-full relative">
-    <div class="relative text-zinc-900 text-lg">
+    <div class="relative  text-lg">
         <input
             type="text"
             placeholder="City"
             @oninput=@(QueryChanged)
+            @onfocusin=@(FocusGained)
+            @onfocusout=@(FocusLost)
             id="citySearch"
             class="bg-white/40 backdrop-blur-sm font-medium placeholder:text-zinc-700 w-full px-4 py-2 border-white/40 border-2 rounded-lg outline-none"
-        >
+        />
 
         <button 
             title="Search"
             class="absolute top-0 bottom-0 right-0
                     px-4 py-2 align-middle
                     border-2 border-transparent"
+            @onclick=@(SearchClicked)
+            disabled=@(!SearchResults.Any())
         >
             <span class="oi align-middle" data-glyph="magnifying-glass"></span>
         </button>
     </div>
 
 
-    @if (SearchResults?.Any() ?? false) {
+    @if (ResultsVisible && SearchResults.Any()) {
         <div class="absolute bg-white/40 border-white/40 border-2 top-full mt-2 rounded-lg left-0 right-0 backdrop-blur-sm overflow-auto">
             <ol>
                 @foreach (GeocodeOption result in SearchResults.Take(5)) {
@@ -29,7 +33,7 @@
                             State="@(result.State)"
                             Country="@(result.Country)"
                             Confidence="@(result.Confidence)"
-                            OnSelect="@(() => HandleItemClicked(result))"
+                            OnSelect="@(() => ItemClicked(result))"
                         />
                     </li>
                 }
@@ -46,12 +50,12 @@
 
     // TODO: Some way to detect ratelimiting so we can somehow switch geocoders/indicate service unavailable
 
-    List<GeocodeOption>? SearchResults;
+    private bool ResultsVisible = false;
+    private List<GeocodeOption> SearchResults = new();
 
     protected override void OnInitialized()
     {
         locationSearchService.ResultsUpdated += (results) => {
-            Console.WriteLine(results.Count());
             this.SearchResults = results
                                 .OrderByDescending(result => result.Confidence)
                                 .ToList();
@@ -73,11 +77,31 @@
 
         // clear search results when box is cleared
         if (string.IsNullOrWhiteSpace(newQuery)) {
-            SearchResults = null;
+            SearchResults.Clear();
         }
     }
 
-    private void HandleItemClicked(GeocodeOption selected)
+    private void FocusGained()
+    {
+        ResultsVisible = true;
+    }
+
+    private void FocusLost()
+    {
+        ResultsVisible = false;
+    }
+
+    private void SearchClicked()
+    {
+        if (!SearchResults.Any())
+        {
+            return;
+        }
+
+        ItemClicked(SearchResults.First());
+    }
+
+    private void ItemClicked(GeocodeOption selected)
     {
         Console.WriteLine(selected);
     }

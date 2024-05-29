@@ -1,0 +1,105 @@
+<form 
+    class="mx-auto w-full max-w-lg flex flex-col gap-2"
+    @onsubmit=@(OnSubmit)
+>
+    <label for="simple-search" class="sr-only">City Search</label>
+
+    <div class="relative w-full bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
+        <div class="absolute inset-y-0 start-0 flex items-center px-3 pointer-events-none">
+            <span class="oi mt-1" data-glyph="location"></span>
+        </div>
+
+        <input
+            type="text"
+            id="simple-search"
+            class="px-10 p-2.5 w-full rounded-lg bg-transparent placeholder:text-gray-400"
+            placeholder="Search city..."
+            @oninput=@(OnInput)
+            @onfocus=@(OnInputFocus)
+        />
+
+        <button 
+            type="submit"
+            disabled=@(string.IsNullOrEmpty(currentQuery))
+            class="absolute inset-y-0 end-0 px-4 ms-2 bg-zinc-900 rounded-e-lg disabled:bg-transparent disabled:text-zinc-500 hover:bg-zinc-700 active:bg-zinc-800"
+        >
+            <span class="oi" data-glyph="magnifying-glass"></span>
+            <span class="sr-only">Search</span>
+        </button>
+    </div>
+
+    @if (formFocused && searchResults.Count > 0) {
+        <div class="w-full bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
+            @for (int i = 0; i < searchResults.Count; ++i) {
+                // Todo: maybe we can abuse radio buttons to allow arrow key navigation?
+                // If not, I guess I'll settle for tab only...
+                int iCopy = i;
+                <SearchResult
+                    OnSelect="@(() => Console.WriteLine(iCopy))"
+                    City=@(searchResults[i].City)
+                    State=@(searchResults[i].State)
+                    Country=@(searchResults[i].Country)
+                    Confidence=@(searchResults[i].Confidence)
+                />
+            }
+        </div>
+    }
+</form>
+
+@code {
+    [Parameter] public Geocode Geobias {get;set;}
+
+    [Inject] private LocationSearchService locationSearchService {get;set;} = null!;
+
+    private string currentQuery {get;set;} = "";
+    private bool formFocused {get;set;} = false;
+
+    private List<GeocodeOption> searchResults {get;set;} = new();
+    private int focusedElementIndex = -1;
+
+    protected override void OnParametersSet()
+    {
+        locationSearchService.UpdateGeobias(Geobias);
+    }
+
+    protected override void OnInitialized()
+    {
+        locationSearchService.ResultsUpdated += (newResults) => {
+            searchResults = newResults
+                                .OrderByDescending(r => r.Confidence)
+                                .ToList();
+            InvokeAsync(StateHasChanged);
+        };
+    }
+
+    private void OnInput(ChangeEventArgs eventArgs)
+    {
+        currentQuery = eventArgs.Value?.ToString() ?? "";
+        locationSearchService.UpdateQuery(currentQuery);
+    }
+
+    private void OnInputFocus()
+    {
+        formFocused = true;
+    }
+
+    private void OnFocusOut()
+    {
+        formFocused = false;
+    }
+
+    private void OnSubmit()
+    {
+        if (searchResults.Count <= 0)
+        {
+            return;
+        }
+
+        ResultSelected(searchResults.First());
+    }
+
+    private void ResultSelected(GeocodeOption option)
+    {
+        Console.WriteLine("Selected: " + option);
+    }
+}

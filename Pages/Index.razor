@@ -13,14 +13,18 @@
         <BlazeLogo />
     </h1>
 
-    <LocationSearch Geobias=@(geobias) />
+    <Search />
 </div>
 
 @if (geobias.HasValue)
 {
     <div class="absolute bottom-0 text-white/50 p-1 text-xs flex items-center">
-        <span data-glyph="location" class="oi"></span>
-        <span class="ps-1 pb-[1px]">@(geobias.Value.Latitude), @(geobias.Value.Longitude)</span>
+        <span data-glyph="map-marker" class="oi"></span>
+        <span class="ps-1 pb-[1px]">
+            @(geobias.Value.Latitude.ToString(".####")), 
+            @(geobias.Value.Longitude.ToString(".####"))
+            (based on your IP address)
+        </span>
     </div>
 }
 
