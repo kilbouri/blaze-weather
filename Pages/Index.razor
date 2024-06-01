@@ -13,7 +13,7 @@
         <BlazeLogo />
     </h1>
 
-    <Search Geobias="@(geobias)"/>
+    <Search Geobias="@(geobias)" GeocodeSelected="@((r) => Console.WriteLine(r))"/>
 </div>
 
 @if (geobias.HasValue)

@@ -17,13 +17,13 @@
             class="px-10 p-2.5 w-full rounded-lg bg-transparent placeholder:text-gray-400"
             placeholder="Search city..."
             @oninput=@(OnInput)
+            @onkeydown=@(OnKeyDown)
             @onfocus=@(OnInputFocused)
             @onblur=@(OnInputBlurred)
-            @onkeydown=@(OnKeyDown)
         />
 
         <button 
-            type="button"
+            type="submit"
             disabled=@(string.IsNullOrEmpty(currentQuery))
             class="absolute inset-y-0 end-0 px-4 ms-2 bg-zinc-900 rounded-e-lg disabled:bg-transparent disabled:text-zinc-500 hover:bg-zinc-700 active:bg-zinc-800"
         >
@@ -32,42 +32,43 @@
         </button>
     </div>
 
-    @if (searchHasFocus && !string.IsNullOrWhiteSpace(currentQuery) && searchResults.Count > 0) {
-        <div class="w-full bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
-            @for (int i = 0; i < searchResults.Count; ++i) {
-                // Todo: maybe we can abuse radio buttons to allow arrow key navigation?
-                // If not, I guess I'll settle for tab only...
-                int iCopy = i;
-                <SearchResult
-                    OnSelect="@(() => Console.WriteLine(iCopy))"
-                    Pseudofocused="@(focusedSearchResult == i)"
-                    City=@(searchResults[i].City)
-                    State=@(searchResults[i].State)
-                    Country=@(searchResults[i].Country)
-                    Confidence=@(searchResults[i].Confidence)
-                />
-            }
-        </div>
-    }
+    <div class="w-full bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2 @(resultsDisplay)">
+        @for (int i = 0; i < searchResults.Count; ++i) {
+            int iCopy = i; // We need to copy `i` because its passed BY REFERENCE into the lambda for OnSelect... ffs
+            <SearchResult
+                Pseudofocused="@(focusedSearchResult == i)"
+                City=@(searchResults[i].City)
+                State=@(searchResults[i].State)
+                Country=@(searchResults[i].Country)
+                Confidence=@(searchResults[i].Confidence)
+                OnSelect="@(() => GeocodeSelected?.Invoke(searchResults[iCopy].ResolvedGeocode))"
+            />
+        }
+    </div>
 </form>
 
 @code {
+    private const int NO_RESULT_FOCUSED = -1;
 
     [Parameter] public Geocode? Geobias {get;set;}
+    [Parameter] public Action<Geocode>? GeocodeSelected {get;set;}
 
     [Inject] private IJSRuntime JS {get;set;} = null!;
     [Inject] private LocationSearchService locationSearchService {get;set;} = null!;
 
-    private string currentQuery {get;set;} = "";
     private bool searchHasFocus {get;set;} = false;
-
+    private string currentQuery {get;set;} = "";
     private List<GeocodeOption> searchResults {get;set;} = new();
-
-    private const int NO_RESULT_FOCUSED = -1;
     private int focusedSearchResult = NO_RESULT_FOCUSED;
-
+        
+    // JS interop stuff for suppressing arrow up/down on the search field
     private IJSObjectReference? searchJSModule = null;
     private ElementReference? inputRef = null;
+
+    private string resultsDisplay => 
+        (searchHasFocus && !string.IsNullOrWhiteSpace(currentQuery) && searchResults.Count > 0)
+            ? ""
+            : "-ms-[9999999px]";
 
     protected override void OnParametersSet()
         => locationSearchService.UpdateGeobias(Geobias);
@@ -82,22 +83,25 @@
             return;
         }
 
-        if (searchJSModule == null)
-        {
-            searchJSModule = await JS.InvokeAsync<IJSObjectReference>(
-                "import", 
-                "./Shared/Search/Search.razor.js"
-            );
-        }
+        searchJSModule ??= await JS.InvokeAsync<IJSObjectReference>(
+            "import", 
+            "./Shared/Search/Search.razor.js"
+        );
 
         await searchJSModule.InvokeVoidAsync("registerSearchField", inputRef);
     }
 
-    private void OnInputFocused() 
-        => searchHasFocus = true;
+    private void OnInputFocused()
+    {
+        searchHasFocus = true;
+        focusedSearchResult = NO_RESULT_FOCUSED;
+    }
 
-    private void OnInputBlurred() 
-        => searchHasFocus = false;
+    private void OnInputBlurred()
+    {
+        searchHasFocus = false;
+        focusedSearchResult = NO_RESULT_FOCUSED;
+    }
 
     private void OnInput(ChangeEventArgs eventArgs)
     {
@@ -127,7 +131,14 @@
 
     private void OnSubmit()
     {
-
+        if (focusedSearchResult != NO_RESULT_FOCUSED)
+        {
+            GeocodeSelected?.Invoke(searchResults[focusedSearchResult].ResolvedGeocode);
+        }
+        else if (searchResults.Count > 0)
+        {
+            GeocodeSelected?.Invoke(searchResults[0].ResolvedGeocode);
+        }
     }
 
     private void UpdateSearchResults(IEnumerable<GeocodeOption> newResults)

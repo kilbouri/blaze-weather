@@ -3,15 +3,16 @@
 
 <button
     type="button"
-    class="w-full flex gap-2 items-baseline first:rounded-t-lg last:rounded-b-lg p-4 py-2 hover:bg-white/10 focus:bg-white/10 @(background)"
-    @onclick=@(OnSelect) 
+    class="w-full flex gap-2 items-baseline first:rounded-t-lg last:rounded-b-lg p-4 py-2 hover:bg-white/10 focus:bg-white/10@(background)"
+    tabindex="-1"
+    @onmousedown="@(() => OnSelect?.Invoke())"
 >
-    <span class="text-zinc-300 font-bold">@(City)</span>
-    <span class="text-zinc-400 font-medium text-sm">@(GetRegionString())</span>
+    <span class="text-zinc-300 font-bold pointer-events-none">@(City)</span>
+    <span class="text-zinc-400 font-medium text-sm pointer-events-none">@(GetRegionString())</span>
 </button>
 
 @code {
-    [Parameter] public Action OnSelect {get;set;} = () => { return; };
+    [Parameter] public Action? OnSelect {get;set;} = null;
     [Parameter] public string City { get; set; } = null!;
     [Parameter] public string State { get; set; } = null!;
     [Parameter] public string Country { get; set; } = null!;
@@ -20,7 +21,7 @@
 
     [Inject] private IWebHostEnvironment environment {get;set;} = null!;
 
-    private string background => Pseudofocused ? " bg-white/10 " : "";
+    private string background => Pseudofocused ? " bg-white/10" : "";
 
     private string GetRegionString()
     {
