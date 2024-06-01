@@ -68,7 +68,7 @@
     private string resultsDisplay => 
         (searchHasFocus && !string.IsNullOrWhiteSpace(currentQuery) && searchResults.Count > 0)
             ? ""
-            : "-ms-[9999999px]";
+            : "hidden";
 
     protected override void OnParametersSet()
         => locationSearchService.UpdateGeobias(Geobias);
