@@ -3,7 +3,7 @@
 
 <button
     type="button"
-    class="w-full flex gap-2 items-baseline first:rounded-t-lg last:rounded-b-lg p-4 py-2 hover:bg-white/10 focus:bg-white/10"
+    class="w-full flex gap-2 items-baseline first:rounded-t-lg last:rounded-b-lg p-4 py-2 hover:bg-white/10 focus:bg-white/10 @(background)"
     @onclick=@(OnSelect) 
 >
     <span class="text-zinc-300 font-bold">@(City)</span>
@@ -16,8 +16,11 @@
     [Parameter] public string State { get; set; } = null!;
     [Parameter] public string Country { get; set; } = null!;
     [Parameter] public double? Confidence { get; set; } = null;
+    [Parameter] public bool Pseudofocused { get; set; } = false;
 
     [Inject] private IWebHostEnvironment environment {get;set;} = null!;
+
+    private string background => Pseudofocused ? " bg-white/10 " : "";
 
     private string GetRegionString()
     {
