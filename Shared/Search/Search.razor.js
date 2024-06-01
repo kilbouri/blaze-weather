@@ -23,17 +23,17 @@ const preventDefaultForSearchInputs = (e) => {
 export const registerSearchField = (elementReference) => {
     console.debug(`Registering search field`);
     elementReference.addEventListener("keydown", preventDefaultForSearchInputs);
-    }
-    
-    /**
-     * Removes the required listeners to `elementReference` to un-polish up
-     * client-side behaviour of a search field. Inverse of `registerSearchField`.
-     * 
-     * @param {HTMLElement} elementReference 
-     * 
-     * @see registerSearchField
-    */
-   export const unregisterSearchField = (elementReference) => {
+}
+
+/**
+ * Removes the required listeners to `elementReference` to un-polish up
+ * client-side behaviour of a search field. Inverse of `registerSearchField`.
+ * 
+ * @param {HTMLElement} elementReference 
+ * 
+ * @see registerSearchField
+ */
+export const unregisterSearchField = (elementReference) => {
     console.debug(`Unregistering search field`);
     elementReference.removeEventListener("keydown", preventDefaultForSearchInputs);
 }
