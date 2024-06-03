@@ -19,10 +19,12 @@
     @if (selectedGeocode.HasValue) {
         @if (weatherLoading) {
             <Spinner />
-        } else if (weatherReady) {
-            // weather fetched and displayable
+        } else if (weatherFetched && weatherResolved) {
+            <WeatherResults />
+        } else if (weatherFetched && !weatherResolved) {
+            // weather service could not find weather
         } else {
-            // weather error
+            // some other error
         }
     }
 </div>
@@ -41,14 +43,16 @@
 @code {
     [Inject] BlazeWeatherContext context {get;set;} = null!;
     [Inject] IGeolocationService geolocationService {get;set;} = null!;
+    [Inject] IWeatherService weatherService {get;set;} = null!;
     [Inject] IWebHostEnvironment environment {get;set;} = null!;
 
     private Geocode? geobias = null;
     private Geocode? selectedGeocode {get;set;} = null;
 
-    private Task<Weather>? weatherTask = null;
+    private Task<Weather?>? weatherTask = null;
     private bool weatherLoading => !weatherTask?.IsCompleted ?? true;
-    private bool weatherReady => weatherTask?.IsCompletedSuccessfully ?? false;
+    private bool weatherFetched => weatherTask?.IsCompletedSuccessfully ?? false;
+    private bool weatherResolved => weatherTask?.Result.HasValue ?? false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -71,8 +75,13 @@
         }
     }
 
-    private void GeocodeSelected(Geocode geocode)
+    private async void GeocodeSelected(Geocode geocode)
     {
         selectedGeocode = geocode;
+        weatherTask = weatherService.GetCurrentWeather(geocode.Latitude, geocode.Longitude);
+        InvokeAsync(StateHasChanged);
+
+        await weatherTask;
+        InvokeAsync(StateHasChanged);
     }
 }

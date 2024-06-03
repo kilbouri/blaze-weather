@@ -28,11 +28,11 @@ public class OpenWeatherAPIWeatherService : IWeatherService
 
         if (apiResponse == null)
         {
-            logger.LogWarning("Unable to fetch weather at at (Latitude: {Lat}, Longitude: {Lng})", lat, lng);
+            logger.LogWarning("Unable to fetch weather at (Latitude: {Lat}, Longitude: {Lng})", lat, lng);
             return null;
         }
 
-        logger.LogInformation("Fetched weather at at (Latitude: {Lat}, Longitude: {Lng})", lat, lng);
+        logger.LogInformation("Fetched weather at (Latitude: {Lat}, Longitude: {Lng})", lat, lng);
         return new Models.Domain.Weather
         {
             Temperature = new Temperature(TemperatureUnit.Celsius, apiResponse.Main.Temp),
