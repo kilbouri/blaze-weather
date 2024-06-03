@@ -37,3 +37,7 @@ export const unregisterSearchField = (elementReference) => {
     console.debug(`Unregistering search field`);
     elementReference.removeEventListener("keydown", preventDefaultForSearchInputs);
 }
+
+export const forceBlurActiveElement = () => {
+    (/** @type {HTMLElement | null} */(document.activeElement))?.blur();
+}

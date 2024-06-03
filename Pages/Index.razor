@@ -4,7 +4,8 @@
 
 <div
     id="searchContainer"
-    class="mx-auto pt-[25dvh] flex flex-col items-center gap-8 px-2"
+    class="mx-auto flex flex-col items-center gap-8 px-2 transition-all pt-[25dvh] data-[gc-selected=True]:pt-[10dvh]"
+    data-gc-selected=@(selectedGeocode.HasValue.ToString())
 >
     <h1
         class="text-3xl font-semibold text-white"
@@ -13,12 +14,21 @@
         <BlazeLogo />
     </h1>
 
-    <Search Geobias="@(geobias)" GeocodeSelected="@((r) => Console.WriteLine(r))"/>
+    <Search Geobias="@(geobias)" GeocodeSelected="this.GeocodeSelected" />
+
+    @if (selectedGeocode.HasValue) {
+        @if (weatherLoading) {
+            <Spinner />
+        } else if (weatherReady) {
+            // weather fetched and displayable
+        } else {
+            // weather error
+        }
+    }
 </div>
 
-@if (geobias.HasValue)
-{
-    <div class="absolute bottom-0 text-white/50 p-1 text-xs flex items-center">
+@if (geobias.HasValue) {
+    <div class="fixed pointer-events-none bottom-0 text-white/50 p-1 text-xs flex items-center">
         <span data-glyph="map-marker" class="oi"></span>
         <span class="ps-1 pb-[1px]">
             @(geobias.Value.Latitude.ToString(".####")), 
@@ -34,6 +44,11 @@
     [Inject] IWebHostEnvironment environment {get;set;} = null!;
 
     private Geocode? geobias = null;
+    private Geocode? selectedGeocode {get;set;} = null;
+
+    private Task<Weather>? weatherTask = null;
+    private bool weatherLoading => !weatherTask?.IsCompleted ?? true;
+    private bool weatherReady => weatherTask?.IsCompletedSuccessfully ?? false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,5 +69,10 @@
                 Console.WriteLine("Failed to geocode user IP address");
             }
         }
+    }
+
+    private void GeocodeSelected(Geocode geocode)
+    {
+        selectedGeocode = geocode;
     }
 }

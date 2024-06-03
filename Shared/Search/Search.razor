@@ -1,7 +1,7 @@
 @implements IAsyncDisposable
 
 <form 
-    class="mx-auto w-full max-w-lg flex flex-col gap-2"
+    class="mx-auto w-full max-w-lg relative"
     @onsubmit=@(OnSubmit)
 >
     <label for="simple-search" class="sr-only">City Search</label>
@@ -32,7 +32,7 @@
         </button>
     </div>
 
-    <div class="w-full bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2 @(resultsDisplay)">
+    <div class="absolute top-16 w-full bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2 @(resultsDisplay)">
         @for (int i = 0; i < searchResults.Count; ++i) {
             int iCopy = i; // We need to copy `i` because its passed BY REFERENCE into the lambda for OnSelect... ffs
             <SearchResult
@@ -67,7 +67,7 @@
 
     private string resultsDisplay => 
         (searchHasFocus && !string.IsNullOrWhiteSpace(currentQuery) && searchResults.Count > 0)
-            ? ""
+            ? "absolute"
             : "hidden";
 
     protected override void OnParametersSet()
@@ -83,12 +83,12 @@
             return;
         }
 
-        searchJSModule ??= await JS.InvokeAsync<IJSObjectReference>(
+        searchJSModule = await JS.InvokeAsync<IJSObjectReference>(
             "import", 
             "./Shared/Search/Search.razor.js"
         );
 
-        await searchJSModule.InvokeVoidAsync("registerSearchField", inputRef);
+        await (searchJSModule?.InvokeVoidAsync("registerSearchField", inputRef) ?? ValueTask.CompletedTask);
     }
 
     private void OnInputFocused()
@@ -139,6 +139,8 @@
         {
             GeocodeSelected?.Invoke(searchResults[0].ResolvedGeocode);
         }
+
+        searchJSModule?.InvokeVoidAsync("forceBlurActiveElement");
     }
 
     private void UpdateSearchResults(IEnumerable<GeocodeOption> newResults)
