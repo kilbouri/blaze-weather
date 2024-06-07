@@ -1,18 +1,38 @@
-<div class="grid grid-cols-3 gap-4">
-    <div class="w-full p-4 bg-opacity-75 bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
-        Temp: @(Weather.CurrentTemp.ToUnit(TemperatureUnit.Celsius))
-    </div>
-    <div class="w-full p-4 bg-opacity-75 bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
-        Feels like: @(Weather.FeelsLike.ToUnit(TemperatureUnit.Celsius))
-    </div>
-    <div class="w-full p-4 bg-opacity-75 bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
-        Humidity: @(Weather.HumidityPerecent)%
-    </div>
+<div class="w-full max-w-7xl grid grid-cols-4">
+     <div class="p-4 bg-opacity-75 bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
+        <p class="text-3xl font-black">
+            @(LocationName)
+        </p>
 
-    <img src="@(Weather.IconUrl)">
+        <div class="overflow-hidden">
+            <img
+                src="@(Weather.IconUrl)"
+                alt="@(Weather.Description)"
+                title="@(Weather.Description)"
+                class="size-32 -m-3 -mt-6"
+            >
+        </div>
+     </div>
 </div>
 
 
 @code {
     [Parameter] public Weather Weather {get;set;} = default;
+
+    [Inject] IReverseGeocoderService reverseGeocoder {get;set;} = null!;
+
+    private string? LocationName = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var results = await reverseGeocoder.GetGeocodeOptions(Weather.Location);
+        if (!results.Any())
+        {
+            Console.WriteLine("Failed to reverse lookup " + Weather.Location);
+            return;
+        }
+
+        LocationName = results.First().City + ", " + results.First().State;
+        await InvokeAsync(StateHasChanged);
+    }
 }

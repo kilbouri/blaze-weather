@@ -3,6 +3,7 @@ using BlazeWeather.Models;
 using BlazeWeather.Services;
 using BlazeWeather.Services.Geocoders;
 using BlazeWeather.Services.Geolocation;
+using BlazeWeather.Services.ReverseGeocoders;
 using BlazeWeather.Services.Weather;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ builder.Services.AddScoped<BlazeWeatherContext>();
 
 // Blaze Weather services
 builder.Services.AddSingleton<IGeocoderService, TomTomGeocoderService>();
+builder.Services.AddSingleton<IReverseGeocoderService, TomTomReverseGeocoderService>();
 builder.Services.AddSingleton<IGeolocationService, IpGeolocationService>();
 builder.Services.AddSingleton<IWeatherService, OpenWeatherAPIWeatherService>();
 builder.Services.AddScoped<LocationSearchService>();

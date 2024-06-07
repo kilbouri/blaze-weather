@@ -39,7 +39,7 @@
                 State=@(searchResults[i].State)
                 Country=@(searchResults[i].Country)
                 Confidence=@(searchResults[i].Confidence)
-                OnSelect="@(() => GeocodeSelected?.Invoke(searchResults[iCopy].ResolvedGeocode))"
+                OnSelect="@(() => GeocodeSelected?.Invoke(searchResults[iCopy].Geocode))"
             />
         }
     </div>
@@ -131,11 +131,11 @@
     {
         if (focusedSearchResult != NO_RESULT_FOCUSED)
         {
-            GeocodeSelected?.Invoke(searchResults[focusedSearchResult].ResolvedGeocode);
+            GeocodeSelected?.Invoke(searchResults[focusedSearchResult].Geocode);
         }
         else if (searchResults.Count > 0)
         {
-            GeocodeSelected?.Invoke(searchResults[0].ResolvedGeocode);
+            GeocodeSelected?.Invoke(searchResults[0].Geocode);
         }
 
         searchJSModule?.InvokeVoidAsync("forceBlurActiveElement");

@@ -29,6 +29,7 @@ public struct Weather
     public TimeOnly Sunset { get; set; }
 
     public string IconUrl { get; set; }
+    public string Description { get; set; }
 
     public override readonly string ToString()
     {

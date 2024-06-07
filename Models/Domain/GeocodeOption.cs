@@ -11,10 +11,10 @@ public class GeocodeOption
 
     public double Confidence { get; set; }
 
-    public Geocode ResolvedGeocode { get; set; }
+    public Geocode Geocode { get; set; }
 
     public override string ToString()
     {
-        return $"{City}, {State}, {Country} -- {ResolvedGeocode}";
+        return $"{City}, {State}, {Country} -- {Geocode}";
     }
 }

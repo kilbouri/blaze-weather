@@ -60,7 +60,8 @@ public class OpenWeatherAPIWeatherService : IWeatherService
             Sunrise = TimeOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(apiResponse.Sys.Sunrise).DateTime),
             Sunset = TimeOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(apiResponse.Sys.Sunset).DateTime),
 
-            IconUrl = GetPrimaryIconUrl(apiResponse)
+            IconUrl = GetPrimaryIconUrl(apiResponse),
+            Description = GetPrimaryDescription(apiResponse)
         };
     }
 
@@ -94,5 +95,15 @@ public class OpenWeatherAPIWeatherService : IWeatherService
 
         CurrentWeatherResponse.WeatherDetailsPayload primary = response.Weather[0];
         return $"https://openweathermap.org/img/wn/{primary.Icon}@4x.png";
+    }
+
+    private static string GetPrimaryDescription(CurrentWeatherResponse response)
+    {
+        if (response.Weather.Length <= 0)
+        {
+            return "";
+        }
+
+        return response.Weather[0].Description;
     }
 }

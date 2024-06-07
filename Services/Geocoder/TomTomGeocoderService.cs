@@ -57,7 +57,7 @@ public class TomTomGeocoderService : IGeocoderService
                                 Country = result.Address.Country,
                                 Distance = result.Dist,
                                 Confidence = result.Score,
-                                ResolvedGeocode = new Geocode()
+                                Geocode = new Geocode()
                                 {
                                     Latitude = result.Position.Lat,
                                     Longitude = result.Position.Lon
