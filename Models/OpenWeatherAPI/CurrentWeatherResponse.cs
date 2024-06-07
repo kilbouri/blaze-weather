@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace BlazeWeather.Models.OpenWeatherAPI;
 
 // https://openweathermap.org/current
@@ -6,6 +8,7 @@ public class CurrentWeatherResponse : OpenWeatherAPIResponse
     public class MainWeatherPayload
     {
         public float Temp { get; set; }
+        [JsonPropertyName("feels_like")]
         public float FeelsLike { get; set; }
         public float TempMin { get; set; }
         public float TempMax { get; set; }

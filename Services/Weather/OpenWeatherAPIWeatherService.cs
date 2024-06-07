@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -49,8 +50,16 @@ public class OpenWeatherAPIWeatherService : IWeatherService
     {
         try
         {
-            string uri = $"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lng}&appid={openWeatherApiKey}";
-            return await httpClient.GetFromJsonAsync<CurrentWeatherResponse>(uri);
+            Uri apiUri = new UriBuilder()
+            {
+                Scheme = "https",
+                Host = "api.openweathermap.org",
+                Path = $"data/2.5/weather",
+                Query = $"appid={openWeatherApiKey}&lat={lat}&lon={lng}",
+            }.Uri;
+            
+            logger.LogInformation("Request URI: {Uri}", apiUri.AbsoluteUri);
+            return await httpClient.GetFromJsonAsync<CurrentWeatherResponse>(apiUri);
         }
         catch (HttpRequestException)
         {

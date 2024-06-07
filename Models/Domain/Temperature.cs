@@ -52,7 +52,7 @@ public readonly struct Temperature {
 
     public override string ToString()
     {
-        return Degrees.ToString() + "°" + (Unit switch {
+        return Degrees.ToString(".##") + "°" + (Unit switch {
             TemperatureUnit.Celsius => "C",
             TemperatureUnit.Fahrenheit => "F",
             TemperatureUnit.Kelvin => "K",
