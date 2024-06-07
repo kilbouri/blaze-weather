@@ -15,7 +15,7 @@
         <BlazeLogo />
     </h1>
 
-    <Search Geobias="@(geobias)" GeocodeSelected="(g) => this.GeocodeSelected(g)" />
+    <Search Geobias="@(geobias)" GeocodeSelected="(g) => _ = this.GeocodeSelected(g)" />
 
     @if (selectedGeocode.HasValue) {
         @if (!weatherTask?.IsCompleted ?? true) {

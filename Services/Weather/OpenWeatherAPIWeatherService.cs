@@ -37,12 +37,30 @@ public class OpenWeatherAPIWeatherService : IWeatherService
         return new Models.Domain.Weather
         {
             Location = new Geocode(apiResponse.Coord.Lat, apiResponse.Coord.Lon),
-            Temperature = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.Temp),
-            TemperatureMin = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.TempMin),
-            TemperatureMax = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.TempMax),
+
+            CurrentTemp = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.Temp),
             FeelsLike = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.FeelsLike),
-            PressureHPA = apiResponse.Main.Pressure,
+            MinTemp = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.TempMin),
+            MaxTemp = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.TempMax),
+            
             HumidityPerecent = apiResponse.Main.Humidity,
+
+            GroundPressureHPA = apiResponse.Main.GrndLevel,
+            SeaPressureHPA = apiResponse.Main.SeaLevel,
+
+            RainMillimeters = apiResponse.Rain?.OneHour ?? 0.0,
+            SnowMillimeters = apiResponse.Snow?.OneHour ?? 0.0,
+
+            WindSpeed = apiResponse.Wind.Speed,
+            WindGust = apiResponse.Wind.Gust,
+            WindDegrees = apiResponse.Wind.Deg,
+
+            CloudsPercent = apiResponse.Clouds.All,
+
+            Sunrise = TimeOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(apiResponse.Sys.Sunrise).DateTime),
+            Sunset = TimeOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(apiResponse.Sys.Sunset).DateTime),
+
+            IconUrl = GetPrimaryIconUrl(apiResponse)
         };
     }
 
@@ -65,5 +83,16 @@ public class OpenWeatherAPIWeatherService : IWeatherService
         {
             return null;
         }
+    }
+
+    private static string GetPrimaryIconUrl(CurrentWeatherResponse response)
+    {
+        if (response.Weather.Length <= 0)
+        {
+            return "";
+        }
+
+        CurrentWeatherResponse.WeatherDetailsPayload primary = response.Weather[0];
+        return $"https://openweathermap.org/img/wn/{primary.Icon}@4x.png";
     }
 }

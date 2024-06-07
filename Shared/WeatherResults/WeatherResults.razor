@@ -1,6 +1,6 @@
 <div class="grid grid-cols-3 gap-4">
     <div class="w-full p-4 bg-opacity-75 bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
-        Temp: @(Weather.Temperature.ToUnit(TemperatureUnit.Celsius))
+        Temp: @(Weather.CurrentTemp.ToUnit(TemperatureUnit.Celsius))
     </div>
     <div class="w-full p-4 bg-opacity-75 bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
         Feels like: @(Weather.FeelsLike.ToUnit(TemperatureUnit.Celsius))
@@ -8,6 +8,8 @@
     <div class="w-full p-4 bg-opacity-75 bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
         Humidity: @(Weather.HumidityPerecent)%
     </div>
+
+    <img src="@(Weather.IconUrl)">
 </div>
 
 
