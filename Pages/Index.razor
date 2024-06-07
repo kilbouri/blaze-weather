@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Hosting
 @using Microsoft.Extensions.Hosting
+@inject NavigationManager navigationManager
 
 <div
     id="searchContainer"
@@ -14,15 +15,17 @@
         <BlazeLogo />
     </h1>
 
-    <Search Geobias="@(geobias)" GeocodeSelected="this.GeocodeSelected" />
+    <Search Geobias="@(geobias)" GeocodeSelected="(g) => this.GeocodeSelected(g)" />
 
     @if (selectedGeocode.HasValue) {
-        @if (weatherLoading) {
+        @if (!weatherTask?.IsCompleted ?? true) {
             <Spinner />
-        } else if (weatherFetched && weatherResolved) {
-            <WeatherResults />
-        } else if (weatherFetched && !weatherResolved) {
-            // weather service could not find weather
+        } else if (weatherTask?.IsCompletedSuccessfully ?? false) {
+            if (weatherTask?.Result.HasValue ?? false) {
+                <WeatherResults Weather=@(weatherTask.Result.Value) />
+            } else {
+                // weather service could not find weather
+            }
         } else {
             // some other error
         }
@@ -46,13 +49,13 @@
     [Inject] IWeatherService weatherService {get;set;} = null!;
     [Inject] IWebHostEnvironment environment {get;set;} = null!;
 
+    [Parameter] [SupplyParameterFromQuery] public double? Lat {get;set;} = default;
+    [Parameter] [SupplyParameterFromQuery] public double? Lon {get;set;} = default;
+
     private Geocode? geobias = null;
     private Geocode? selectedGeocode {get;set;} = null;
 
     private Task<Weather?>? weatherTask = null;
-    private bool weatherLoading => !weatherTask?.IsCompleted ?? true;
-    private bool weatherFetched => weatherTask?.IsCompletedSuccessfully ?? false;
-    private bool weatherResolved => weatherTask?.Result.HasValue ?? false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,25 +66,39 @@
             context.CurrentUserIP = null;
         }
 
-        if (!environment.IsDevelopment() && context.CurrentUserIP == null) {
-            Console.WriteLine("Failed to retrieve user IP address for geolocation");
-        } else {
+        if (environment.IsDevelopment() || context.CurrentUserIP != null) {
             geobias = await geolocationService.GeolocateIpAddress(context.CurrentUserIP);
-            if (geobias.HasValue) {
-                Console.WriteLine(geobias.Value);
-            } else {
-                Console.WriteLine("Failed to geocode user IP address");
-            }
+        }
+        
+        if (Lat.HasValue && Lon.HasValue)
+        {
+            // navigate must be false or an infinite loop will be created... lol
+            await GeocodeSelected(new Geocode()
+            {
+                Latitude = Lat.Value,
+                Longitude = Lon.Value
+            }, navigate: false);
         }
     }
 
-    private async void GeocodeSelected(Geocode geocode)
+    private async Task GeocodeSelected(Geocode geocode, bool navigate = true)
     {
         selectedGeocode = geocode;
         weatherTask = weatherService.GetCurrentWeather(geocode.Latitude, geocode.Longitude);
-        InvokeAsync(StateHasChanged);
+
+        if (navigate)
+        {
+            string newUri = navigationManager.GetUriWithQueryParameters(new Dictionary<string, object?>() {
+                { "lat", geocode.Latitude },
+                { "lon", geocode.Longitude }
+            }.AsReadOnly());
+            navigationManager.NavigateTo(newUri);
+        }
+        
+
+        _ = InvokeAsync(StateHasChanged);
 
         await weatherTask;
-        InvokeAsync(StateHasChanged);
+        _ = InvokeAsync(StateHasChanged);
     }
 }

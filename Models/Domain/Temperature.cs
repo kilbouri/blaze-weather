@@ -37,6 +37,7 @@ public readonly struct Temperature {
         {
             TemperatureUnit.Celsius => this.Degrees,
             TemperatureUnit.Fahrenheit => (this.Degrees - 32.0) / 1.8,
+            TemperatureUnit.Kelvin => this.Degrees - 273.15,
             _ => throw new NotImplementedException($"{Unit} is not a known TemperatureUnit")
         };
 
@@ -44,6 +45,7 @@ public readonly struct Temperature {
         {
             TemperatureUnit.Celsius => new Temperature(newUnit, celsius),
             TemperatureUnit.Fahrenheit => new Temperature(newUnit, (1.8 * celsius) + 32.0),
+            TemperatureUnit.Kelvin => new Temperature(newUnit, celsius + 273.15),
             _ => throw new NotImplementedException($"{newUnit} is not a known TemperatureUnit"),
         };
     }
@@ -53,6 +55,7 @@ public readonly struct Temperature {
         return Degrees.ToString() + "°" + (Unit switch {
             TemperatureUnit.Celsius => "C",
             TemperatureUnit.Fahrenheit => "F",
+            TemperatureUnit.Kelvin => "K",
             _ => throw new NotImplementedException($"{Unit} is not a known TemperatureUnit")
         });
     }

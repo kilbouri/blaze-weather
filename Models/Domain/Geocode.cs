@@ -4,6 +4,12 @@ namespace BlazeWeather.Models.Domain;
 
 public struct Geocode
 {
+    public Geocode(double lat, double lng) : this()
+    {
+        Latitude = lat;
+        Longitude = lng;
+    }
+
     [Range(-180.0, 180.0)]
     public double Latitude { get; set; }
 

@@ -35,10 +35,11 @@ public class OpenWeatherAPIWeatherService : IWeatherService
         logger.LogInformation("Fetched weather at (Latitude: {Lat}, Longitude: {Lng})", lat, lng);
         return new Models.Domain.Weather
         {
-            Temperature = new Temperature(TemperatureUnit.Celsius, apiResponse.Main.Temp),
-            TemperatureMin = new Temperature(TemperatureUnit.Celsius, apiResponse.Main.TempMin),
-            TemperatureMax = new Temperature(TemperatureUnit.Celsius, apiResponse.Main.TempMax),
-            FeelsLike = new Temperature(TemperatureUnit.Celsius, apiResponse.Main.FeelsLike),
+            Location = new Geocode(apiResponse.Coord.Lat, apiResponse.Coord.Lon),
+            Temperature = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.Temp),
+            TemperatureMin = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.TempMin),
+            TemperatureMax = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.TempMax),
+            FeelsLike = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.FeelsLike),
             PressureHPA = apiResponse.Main.Pressure,
             HumidityPerecent = apiResponse.Main.Humidity,
         };
