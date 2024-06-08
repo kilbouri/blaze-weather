@@ -43,14 +43,18 @@ public class IpGeolocationService : IGeolocationService
             return null;
         }
 
-        return new Geocode() {
+        Geocode result = new() {
             Latitude = lat,
             Longitude = lon
         };
+
+        logger.LogInformation("Geolocated {IpAddress} to {Location}", ipAddress, result);
+
+        return result;
     }
 
     private async Task<IpGeolocationLookupResponse?> FetchGeolocation(string? ipAddress) {
-        const string REQUIRED_FIELDS = "ip,latitude,longitude";
+        const string REQUIRED_FIELDS = "latitude,longitude";
 
         try
         {

@@ -6,7 +6,7 @@
 <div
     id="searchContainer"
     class="mx-auto flex flex-col items-center gap-8 px-2 transition-all pt-[25dvh] data-[gc-selected=True]:pt-[10dvh]"
-    data-gc-selected=@(selectedGeocode.HasValue.ToString())
+    data-gc-selected=@(currentGeocode.HasValue.ToString())
 >
     <h1
         class="text-3xl font-semibold text-white"
@@ -15,14 +15,14 @@
         <BlazeLogo />
     </h1>
 
-    <Search Geobias="@(geobias)" GeocodeSelected="(g) => _ = this.GeocodeSelected(g)" />
+    <Search Geobias="@(geobias)" GeocodeOptionSelected="(g) => _ = this.GeocodeOptionSelected(g)" />
 
-    @if (selectedGeocode.HasValue) {
+    @if (currentGeocode.HasValue) {
         @if (!weatherTask?.IsCompleted ?? true) {
             <Spinner />
         } else if (weatherTask?.IsCompletedSuccessfully ?? false) {
             if (weatherTask?.Result.HasValue ?? false) {
-                <WeatherResults Weather=@(weatherTask.Result.Value) />
+                <WeatherResults Weather=@(weatherTask.Result.Value) SelectedOption=@(selectedOption) />
             } else {
                 // weather service could not find weather
             }
@@ -53,7 +53,12 @@
     [Parameter] [SupplyParameterFromQuery] public double? Lon {get;set;} = default;
 
     private Geocode? geobias = null;
-    private Geocode? selectedGeocode {get;set;} = null;
+
+    // The selected geocode option, if the geocode was set by selecting a geocode
+    private GeocodeOption? selectedOption {get;set;} = null;
+
+    // The current geocode. May be fetched from query params or via search
+    private Geocode? currentGeocode {get;set;} = null;
 
     private Task<Weather?>? weatherTask = null;
 
@@ -66,39 +71,51 @@
             context.CurrentUserIP = null;
         }
 
+        Task<Geocode?>? geobiasTask = null; 
         if (environment.IsDevelopment() || context.CurrentUserIP != null) {
-            geobias = await geolocationService.GeolocateIpAddress(context.CurrentUserIP);
+            geobiasTask = geolocationService.GeolocateIpAddress(context.CurrentUserIP);
         }
         
         if (Lat.HasValue && Lon.HasValue)
         {
             // navigate must be false or an infinite loop will be created... lol
-            await GeocodeSelected(new Geocode()
+            GeocodeLoaded(new Geocode()
             {
                 Latitude = Lat.Value,
                 Longitude = Lon.Value
             }, navigate: false);
         }
+
+        if (geobiasTask != null)
+        {
+            geobias = await geobiasTask;
+        }
     }
 
-    private async Task GeocodeSelected(Geocode geocode, bool navigate = true)
+    private async Task GeocodeOptionSelected(GeocodeOption option, bool navigate = true)
     {
-        selectedGeocode = geocode;
-        weatherTask = weatherService.GetCurrentWeather(geocode.Latitude, geocode.Longitude);
+        selectedOption = option;
+        GeocodeLoaded(option.Geocode, navigate);
+
+        await Task.WhenAll(
+            InvokeAsync(StateHasChanged), 
+            weatherTask!
+        );
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void GeocodeLoaded(Geocode code, bool navigate = true)
+    {
+        currentGeocode = code;
+        weatherTask = weatherService.GetCurrentWeather(code.Latitude, code.Longitude);
 
         if (navigate)
         {
             string newUri = navigationManager.GetUriWithQueryParameters(new Dictionary<string, object?>() {
-                { "lat", geocode.Latitude },
-                { "lon", geocode.Longitude }
+                { "lat", code.Latitude },
+                { "lon", code.Longitude }
             }.AsReadOnly());
             navigationManager.NavigateTo(newUri);
         }
-        
-
-        _ = InvokeAsync(StateHasChanged);
-
-        await weatherTask;
-        _ = InvokeAsync(StateHasChanged);
     }
 }

@@ -37,21 +37,18 @@ public class TomTomReverseGeocoderService : IReverseGeocoderService
 
         logger.LogInformation("Retrieved {Count} geocode suggestions for {Location}", searchResults.Summary.NumResults, coordinates);
 
-        var options = searchResults.Addresses
-                                .Select(addr => new GeocodeOption
+        return searchResults.Addresses
+                            .Select(addr => new GeocodeOption
+                            {
+                                City = addr.Address.Municipality,
+                                State = addr.Address.CountrySubdivision,
+                                Country = addr.Address.Country,
+                                Geocode = new Geocode()
                                 {
-                                    City = addr.Address.Municipality,
-                                    State = addr.Address.CountrySubdivision,
-                                    Country = addr.Address.Country,
-                                    Geocode = new Geocode()
-                                    {
-                                        Latitude = double.Parse(addr.Position.Split(',', 2)[0]),
-                                        Longitude = double.Parse(addr.Position.Split(',', 2)[1]),
-                                    }
-                                });
-
-        logger.LogInformation("Parsed {Count} geocode suggestions for {Location}", options.Count(), coordinates);
-        return options;
+                                    Latitude = double.Parse(addr.Position.Split(',', 2)[0]),
+                                    Longitude = double.Parse(addr.Position.Split(',', 2)[1]),
+                                }
+                            });
     }
 
     private async Task<ReverseGeocodingSearchResponse?> GetGeocodeOptionsInternal(double lat, double lon, CancellationToken token)

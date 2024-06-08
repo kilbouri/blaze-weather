@@ -39,7 +39,7 @@
                 State=@(searchResults[i].State)
                 Country=@(searchResults[i].Country)
                 Confidence=@(searchResults[i].Confidence)
-                OnSelect="@(() => GeocodeSelected?.Invoke(searchResults[iCopy].Geocode))"
+                OnSelect="@(() => GeocodeOptionSelected?.Invoke(searchResults[iCopy]))"
             />
         }
     </div>
@@ -49,7 +49,7 @@
     private const int NO_RESULT_FOCUSED = -1;
 
     [Parameter] public Geocode? Geobias {get;set;}
-    [Parameter] public Action<Geocode>? GeocodeSelected {get;set;}
+    [Parameter] public Action<GeocodeOption>? GeocodeOptionSelected {get;set;}
 
     [Inject] private IJSRuntime JS {get;set;} = null!;
     [Inject] private LocationSearchService locationSearchService {get;set;} = null!;
@@ -131,11 +131,11 @@
     {
         if (focusedSearchResult != NO_RESULT_FOCUSED)
         {
-            GeocodeSelected?.Invoke(searchResults[focusedSearchResult].Geocode);
+            GeocodeOptionSelected?.Invoke(searchResults[focusedSearchResult]);
         }
         else if (searchResults.Count > 0)
         {
-            GeocodeSelected?.Invoke(searchResults[0].Geocode);
+            GeocodeOptionSelected?.Invoke(searchResults[0]);
         }
 
         searchJSModule?.InvokeVoidAsync("forceBlurActiveElement");

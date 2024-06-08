@@ -1,7 +1,7 @@
 <div class="w-full max-w-7xl grid grid-cols-4">
      <div class="p-4 bg-opacity-75 bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
         <p class="text-3xl font-black">
-            @(LocationName)
+            @(SelectedOption?.City), @(SelectedOption?.State)
         </p>
 
         <div class="overflow-hidden">
@@ -18,21 +18,18 @@
 
 @code {
     [Parameter] public Weather Weather {get;set;} = default;
+    [Parameter] public GeocodeOption? SelectedOption {get;set;} = null;
 
     [Inject] IReverseGeocoderService reverseGeocoder {get;set;} = null!;
 
-    private string? LocationName = null;
-
     protected override async Task OnInitializedAsync()
     {
-        var results = await reverseGeocoder.GetGeocodeOptions(Weather.Location);
-        if (!results.Any())
+        // Attempt to reverse geocode the location the weather is located on if
+        // we aren't also provided the Geocode Option
+        if (SelectedOption == null)
         {
-            Console.WriteLine("Failed to reverse lookup " + Weather.Location);
-            return;
+            var results = await reverseGeocoder.GetGeocodeOptions(Weather.Location);
+            SelectedOption = results.FirstOrDefault(defaultValue: null);
         }
-
-        LocationName = results.First().City + ", " + results.First().State;
-        await InvokeAsync(StateHasChanged);
     }
 }

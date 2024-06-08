@@ -49,7 +49,7 @@ public class TomTomGeocoderService : IGeocoderService
 
         logger.LogInformation("Retrieved {Count} geocode suggestions for {Location}", searchResults.Results.Count, city);
 
-        IEnumerable<GeocodeOption> options = searchResults.Results
+        return searchResults.Results
                             .Select(result => new GeocodeOption
                             {
                                 City = result.Address.Municipality,
@@ -63,9 +63,6 @@ public class TomTomGeocoderService : IGeocoderService
                                     Longitude = result.Position.Lon
                                 }
                             });
-
-        logger.LogInformation("Parsed {Count} geocode suggestions for {Location}", searchResults.Results.Count, city);
-        return options;
     }
 
     private async Task<GeocodingSearchResponse?> GetDirectCityGeocoding(string location, int limit, Geocode? bias, CancellationToken token = default)
