@@ -35,7 +35,7 @@ public class TomTomReverseGeocoderService : IReverseGeocoderService
             return Enumerable.Empty<GeocodeOption>();
         }
 
-        logger.LogInformation("Retrieved {Count} geocode suggestions for {Location}", searchResults.Summary.NumResults, coordinates);
+        logger.LogInformation("Retrieved {Count} reverse geocode suggestions for {Location}", searchResults.Summary.NumResults, coordinates);
 
         return searchResults.Addresses
                             .Select(addr => new GeocodeOption
