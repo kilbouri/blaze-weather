@@ -1,7 +1,6 @@
 @using BlazorTime
 
-<div class="grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2">
-     <div class="@GLASSMORPHIC_PANEL">
+<div class="@GLASSMORPHIC_PANEL w-full max-w-3xl">
         <p class="text-xl font-medium">@(Weather.Description)</p>
         <hr class="border-white/50">
 
@@ -12,30 +11,51 @@
             </div>
         }
 
-        <div class="grid items-center grid-cols-1 text-5xl xs:grid-cols-2">
-            @* Main weather info, top of card body when wrapped *@
-            <div class="whitespace-nowrap">
+        <div class="flex items-center gap-12">
+            @* Icon and current temperature *@
+            <div class="flex items-center gap-4 text-6xl whitespace-nowrap">
                 <WeatherIcon Url=@(Weather.IconUrl) Description=@(Weather.Description) />
                 <TemperatureDisplay Temperature="@(ToPreferredUnit(Weather.CurrentTemp))" />
             </div>
 
-            @* Extra weather info, bottom of card when wrapped  *@
-            <div class="flex flex-col items-start whitespace-nowrap xs:items-end">
-                <span class="text-lg">
+            @* extra temps and wind *@
+            <div class="flex flex-col flex-grow">
+                <span class="text-xl">
                     <span class="text-base text-zinc-400">feels like</span>
                     <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.FeelsLike))" />
                 </span>
-                <span class="text-lg">
+                <span class="text-xl">
                     <span class="text-base text-zinc-400">min</span>
                     <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.MinTemp))" />
                 </span>
-                <span class="text-lg">
+                <span class="text-xl">
                     <span class="text-base text-zinc-400">max</span>
                     <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.MaxTemp))" />
                 </span>
+                <span class="text-xl">
+                    <span class="text-base text-zinc-400">humidity</span>
+                    <span>@(Weather.HumidityPerecent)%</span>
+                </span>
+            </div>
+            <div class="flex flex-col items-end">
+                <span class="text-xl">
+                    <span class="text-base text-zinc-400">wind speed</span>
+                    <span>@(Weather.WindSpeed) m/s</span>
+                </span>
+                <span class="text-xl">
+                    <span class="text-base text-zinc-400">wind gust</span>
+                    <span>@(Weather.WindGust) m/s</span>
+                </span>
+                <span class="text-xl">
+                    <span class="text-base text-zinc-400">direction</span>
+                    <span>@(Weather.WindDegrees)°</span>
+                </span>
+                <span class="text-xl">
+                    <span class="text-base text-zinc-400">cloud cover</span>
+                    <span>@(Weather.CloudsPercent)%</span>
+                </span>
             </div>
         </div>
-     </div>
 </div>
 
 
