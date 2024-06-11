@@ -4,4 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BlazorTime" Version="1.0.3" />
+  </ItemGroup>
 </Project>

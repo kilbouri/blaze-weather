@@ -1,22 +1,26 @@
-<div class="w-full max-w-7xl grid grid-cols-4">
-     <div class="p-4 bg-opacity-75 bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 rounded-lg text-lg text-zinc-300 border border-zinc-900 border-2">
-        <p class="text-3xl font-black">
-            @(SelectedOption?.City), @(SelectedOption?.State)
-        </p>
+@using BlazorTime
 
-        <div class="overflow-hidden">
-            <img
-                src="@(Weather.IconUrl)"
-                alt="@(Weather.Description)"
-                title="@(Weather.Description)"
-                class="size-32 -m-3 -mt-6"
-            >
-        </div>
+<div class="w-full max-w-7xl grid grid-cols-2 gap-4">
+     <div class="@GLASSMORPHIC_PANEL">
+
+        <ToLocal DateTime="@(Weather.Updated)" Format="DDDD' at 'HH:MM Z" />
+        <p> Now (DT): @(Weather.Updated.ToString()) </p>
+        <p> Now (UTC): @(DateTime.UtcNow.ToString()) </p>
+
+        <p>@(Weather.Description)</p>
+        @if(SelectedOption != null) {
+            <hr>
+            <p>@(SelectedOption.City), @(SelectedOption.Country)</p>
+        }
+
+        <WeatherIcon Url=@(Weather.IconUrl) Description=@(Weather.Description) />
      </div>
 </div>
 
 
 @code {
+    private const string GLASSMORPHIC_PANEL = "p-4 bg-opacity-75 bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 rounded-lg text-zinc-300 border border-zinc-900 border-2";
+
     [Parameter] public Weather Weather {get;set;} = default;
     [Parameter] public GeocodeOption? SelectedOption {get;set;} = null;
 

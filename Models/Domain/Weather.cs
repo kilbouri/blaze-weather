@@ -27,6 +27,7 @@ public struct Weather
 
     public TimeOnly Sunrise { get; set; }
     public TimeOnly Sunset { get; set; }
+    public DateTime Updated { get; set; }
 
     public string IconUrl { get; set; }
     public string Description { get; set; }

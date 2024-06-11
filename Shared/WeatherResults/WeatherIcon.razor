@@ -1,0 +1,11 @@
+<img
+    src="@(Url)"
+    alt="@(Description)"
+    title="@(Description)"
+    class="size-32 -m-3 -mt-6"
+>
+
+@code {
+    [Parameter] public string Url {get;set;} = null!;
+    [Parameter] public string Description {get;set;} = null!;
+}

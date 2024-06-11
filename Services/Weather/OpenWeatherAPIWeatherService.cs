@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using BlazeWeather.Models.Domain;
 using BlazeWeather.Models.OpenWeatherAPI;
@@ -57,8 +59,9 @@ public class OpenWeatherAPIWeatherService : IWeatherService
 
             CloudsPercent = apiResponse.Clouds.All,
 
-            Sunrise = TimeOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(apiResponse.Sys.Sunrise).DateTime),
-            Sunset = TimeOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(apiResponse.Sys.Sunset).DateTime),
+            Sunrise = TimeOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(apiResponse.Sys.Sunrise).UtcDateTime),
+            Sunset = TimeOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(apiResponse.Sys.Sunset).UtcDateTime),
+            Updated = DateTimeOffset.FromUnixTimeSeconds(apiResponse.Dt).UtcDateTime,
 
             IconUrl = GetPrimaryIconUrl(apiResponse),
             Description = GetPrimaryDescription(apiResponse)
@@ -104,6 +107,7 @@ public class OpenWeatherAPIWeatherService : IWeatherService
             return "";
         }
 
-        return response.Weather[0].Description;
+        var cultureTextInfo = Thread.CurrentThread.CurrentCulture.TextInfo;
+        return cultureTextInfo.ToTitleCase(response.Weather[0].Description);
     }
 }
