@@ -1,28 +1,49 @@
 @using BlazorTime
 
-<div class="w-full max-w-7xl grid grid-cols-2 gap-4">
+<div class="grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2">
      <div class="@GLASSMORPHIC_PANEL">
+        <p class="text-xl font-medium">@(Weather.Description)</p>
+        <hr class="border-white/50">
 
-        <ToLocal DateTime="@(Weather.Updated)" Format="DDDD' at 'HH:MM Z" />
-        <p> Now (DT): @(Weather.Updated.ToString()) </p>
-        <p> Now (UTC): @(DateTime.UtcNow.ToString()) </p>
-
-        <p>@(Weather.Description)</p>
         @if(SelectedOption != null) {
-            <hr>
-            <p>@(SelectedOption.City), @(SelectedOption.Country)</p>
+            <div class="flex flex-wrap items-baseline justify-between text-zinc-400">
+                <span>@(SelectedOption.City), @(SelectedOption.State)</span>
+                <span><ToLocal DateTime="@(Weather.Updated)" Format="DDDD' at 'HH:MM" /></span>
+            </div>
         }
 
-        <WeatherIcon Url=@(Weather.IconUrl) Description=@(Weather.Description) />
+        <div class="grid items-center grid-cols-1 text-5xl xs:grid-cols-2">
+            @* Main weather info, top of card body when wrapped *@
+            <div class="whitespace-nowrap">
+                <WeatherIcon Url=@(Weather.IconUrl) Description=@(Weather.Description) />
+                <TemperatureDisplay Temperature="@(ToPreferredUnit(Weather.CurrentTemp))" />
+            </div>
+
+            @* Extra weather info, bottom of card when wrapped  *@
+            <div class="flex flex-col items-start whitespace-nowrap xs:items-end">
+                <span class="text-lg">
+                    <span class="text-base text-zinc-400">feels like</span>
+                    <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.FeelsLike))" />
+                </span>
+                <span class="text-lg">
+                    <span class="text-base text-zinc-400">min</span>
+                    <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.MinTemp))" />
+                </span>
+                <span class="text-lg">
+                    <span class="text-base text-zinc-400">max</span>
+                    <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.MaxTemp))" />
+                </span>
+            </div>
+        </div>
      </div>
 </div>
 
 
 @code {
-    private const string GLASSMORPHIC_PANEL = "p-4 bg-opacity-75 bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 rounded-lg text-zinc-300 border border-zinc-900 border-2";
+    private const string GLASSMORPHIC_PANEL = "p-4 bg-opacity-75 border border-2 rounded-lg bg-clip-padding backdrop-filter backdrop-blur-sm bg-zinc-800 text-zinc-300 border-zinc-900";
 
     [Parameter] public Weather Weather {get;set;} = default;
-    [Parameter] public GeocodeOption? SelectedOption {get;set;} = null;
+    [Parameter] public GeocodeOption? SelectedOption {get;set;}
 
     [Inject] IReverseGeocoderService reverseGeocoder {get;set;} = null!;
 
@@ -35,5 +56,10 @@
             var results = await reverseGeocoder.GetGeocodeOptions(Weather.Location);
             SelectedOption = results.FirstOrDefault(defaultValue: null);
         }
+    }
+
+    private Temperature ToPreferredUnit(Temperature temp)
+    {
+        return temp.ToUnit(TemperatureUnit.Celsius);
     }
 }

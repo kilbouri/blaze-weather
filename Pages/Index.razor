@@ -52,15 +52,15 @@
     [Parameter] [SupplyParameterFromQuery] public double? Lat {get;set;} = default;
     [Parameter] [SupplyParameterFromQuery] public double? Lon {get;set;} = default;
 
-    private Geocode? geobias = null;
+    private Geocode? geobias;
 
     // The selected geocode option, if the geocode was set by selecting a geocode
-    private GeocodeOption? selectedOption {get;set;} = null;
+    private GeocodeOption? selectedOption {get;set;}
 
     // The current geocode. May be fetched from query params or via search
-    private Geocode? currentGeocode {get;set;} = null;
+    private Geocode? currentGeocode {get;set;}
 
-    private Task<Weather?>? weatherTask = null;
+    private Task<Weather?>? weatherTask;
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,6 +101,14 @@
             InvokeAsync(StateHasChanged), 
             weatherTask!
         );
+        
+        // This seems to fix the following StateHasChanged being ignored intermittently.
+        // Based on the author's edit here: https://stackoverflow.com/q/58932854
+        // 
+        // Further, it seems that Blazor intentionally ignores the second StateHasChanged
+        // when the previous render completes after the weather update completes.
+        // https://github.com/dotnet/aspnetcore/issues/14591
+        await Task.CompletedTask;
         await InvokeAsync(StateHasChanged);
     }
 

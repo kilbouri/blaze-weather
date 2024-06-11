@@ -1,0 +1,22 @@
+@for (int i = -1; i < breakpoints.Length; i++) {
+
+    string selector;
+    if (i == -1)
+    {
+        selector = $"max-{breakpoints[0]}";
+    }
+    else if (i < breakpoints.Length - 1)
+    {
+        selector = $"{breakpoints[i]}:max-{breakpoints[i+1]}";
+    }
+    else
+    {
+        selector = breakpoints[breakpoints.Length - 1];
+    }
+
+    <span class="hidden @(selector):contents">Current breakpoint range: @(selector)</span>
+}
+
+@code {
+    private static readonly string[] breakpoints = {"xs", "sm", "md", "lg", "xl", "2xl"};
+}

@@ -1,11 +1,18 @@
 using System;
-using System.Reflection.Metadata.Ecma335;
 
 namespace BlazeWeather.Models.Domain;
 
 public readonly struct Temperature {
 
     public readonly TemperatureUnit Unit;
+    
+    public readonly char UnitLetter => Unit switch {
+        TemperatureUnit.Celsius => 'C',
+        TemperatureUnit.Fahrenheit => 'F',
+        TemperatureUnit.Kelvin => 'K',
+        _ => throw new NotImplementedException($"{Unit} is not a known TemperatureUnit")
+    };
+
     public readonly double Degrees;
 
     public Temperature(TemperatureUnit unit, double degrees)
@@ -52,11 +59,11 @@ public readonly struct Temperature {
 
     public override string ToString()
     {
-        return Degrees.ToString(".##") + "°" + (Unit switch {
-            TemperatureUnit.Celsius => "C",
-            TemperatureUnit.Fahrenheit => "F",
-            TemperatureUnit.Kelvin => "K",
-            _ => throw new NotImplementedException($"{Unit} is not a known TemperatureUnit")
-        });
+        return Degrees.ToString(".##") + "°" + UnitLetter;
+    }
+
+    public string ToString(string format)
+    {
+        return Degrees.ToString(format) + "°" + UnitLetter;
     }
 }
