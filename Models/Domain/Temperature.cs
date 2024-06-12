@@ -4,8 +4,9 @@ namespace BlazeWeather.Models.Domain;
 
 public readonly struct Temperature {
 
+    public readonly double Degrees;
     public readonly TemperatureUnit Unit;
-    
+
     public readonly char UnitLetter => Unit switch {
         TemperatureUnit.Celsius => 'C',
         TemperatureUnit.Fahrenheit => 'F',
@@ -13,13 +14,8 @@ public readonly struct Temperature {
         _ => throw new NotImplementedException($"{Unit} is not a known TemperatureUnit")
     };
 
-    public readonly double Degrees;
-
     public Temperature(TemperatureUnit unit, double degrees)
-    {
-        Unit = unit;
-        Degrees = degrees;
-    }
+        => (Unit, Degrees) = (unit, degrees);
 
     /// <summary>
     /// Returns a new Temperature object which has been converted to the requested
@@ -27,7 +23,7 @@ public readonly struct Temperature {
     /// a copy of the object will NOT be made.
     /// </summary>
     /// <param name="newUnit">The new unit the temperature should be measured in</param>
-    /// <returns>A new Temperature object converted to the requested TemperatureUnit</returns>
+    /// <returns>A Temperature object converted to the requested TemperatureUnit</returns>
     /// <exception cref="NotImplementedException">
     ///     <paramref name="newUnit"/> does not have an implemented conversion from celsius, -or- 
     ///     this.Unit does not have an implemented conversion to celsius.
@@ -59,11 +55,12 @@ public readonly struct Temperature {
 
     public override string ToString()
     {
-        return Degrees.ToString(".##") + "°" + UnitLetter;
+        return Degrees.ToString(format: null);
     }
 
-    public string ToString(string format)
+    public string ToString(string? format)
     {
-        return Degrees.ToString(format) + "°" + UnitLetter;
+        string degree = (Unit != TemperatureUnit.Kelvin) ? "°" : "";
+        return Degrees.ToString(format) + degree + UnitLetter;
     }
 }

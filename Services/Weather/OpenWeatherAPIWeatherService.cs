@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using BlazeWeather.Models;
 using BlazeWeather.Models.Domain;
 using BlazeWeather.Models.OpenWeatherAPI;
 using BlazeWeather.Services.Weather;
@@ -40,24 +41,25 @@ public class OpenWeatherAPIWeatherService : IWeatherService
         {
             Location = new Geocode(apiResponse.Coord.Lat, apiResponse.Coord.Lon),
 
-            CurrentTemp = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.Temp),
+            Current = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.Temp),
             FeelsLike = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.FeelsLike),
-            MinTemp = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.TempMin),
-            MaxTemp = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.TempMax),
+            Min = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.TempMin),
+            Max = new Temperature(TemperatureUnit.Kelvin, apiResponse.Main.TempMax),
             
             HumidityPerecent = apiResponse.Main.Humidity,
 
             GroundPressureHPA = apiResponse.Main.GrndLevel,
             SeaPressureHPA = apiResponse.Main.SeaLevel,
 
-            RainMillimeters = apiResponse.Rain?.OneHour ?? 0.0,
-            SnowMillimeters = apiResponse.Snow?.OneHour ?? 0.0,
+            Rain = new Length(LengthUnit.Millimeters, apiResponse.Rain?.OneHour ?? 0.0),
+            Snow = new Length(LengthUnit.Millimeters, apiResponse.Snow?.OneHour ?? 0.0),
 
-            WindSpeed = apiResponse.Wind.Speed,
-            WindGust = apiResponse.Wind.Gust,
-            WindDegrees = apiResponse.Wind.Deg,
+            Wind = new Speed(SpeedUnit.MetersPerSecond, apiResponse.Wind.Speed),
+            WindGust = new Speed(SpeedUnit.MetersPerSecond, apiResponse.Wind.Gust),
+            WindDirection = new Direction(DirectionUnit.MeteorologicalDegree, apiResponse.Wind.Deg),
 
             CloudsPercent = apiResponse.Clouds.All,
+            Visibility = new Length(LengthUnit.Meters, apiResponse.Visibility),
 
             Sunrise = TimeOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(apiResponse.Sys.Sunrise).UtcDateTime),
             Sunset = TimeOnly.FromDateTime(DateTimeOffset.FromUnixTimeSeconds(apiResponse.Sys.Sunset).UtcDateTime),

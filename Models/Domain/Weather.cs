@@ -6,24 +6,25 @@ public struct Weather
 {
     public Geocode Location { get; set; }
 
-    public Temperature CurrentTemp { get; set; }
+    public Temperature Current { get; set; }
     public Temperature FeelsLike { get; set; }
-    public Temperature MinTemp { get; set; }
-    public Temperature MaxTemp { get; set; }
+    public Temperature Min { get; set; }
+    public Temperature Max { get; set; }
 
     public int HumidityPerecent { get; set; }
 
     public double SeaPressureHPA { get; set; }
     public double GroundPressureHPA { get; set; }
     
-    public double RainMillimeters { get; set; }
-    public double SnowMillimeters { get; set; }
+    public Length Rain { get; set; }
+    public Length Snow { get; set; }
     
-    public double WindSpeed { get; set; }
-    public double WindGust { get; set; }
-    public int WindDegrees { get; set; }
+    public Speed Wind { get; set; }
+    public Speed WindGust { get; set; }
+    public Direction WindDirection { get; set; }
 
     public int CloudsPercent { get; set; }
+    public Length Visibility { get; set; }
 
     public TimeOnly Sunrise { get; set; }
     public TimeOnly Sunset { get; set; }
@@ -34,11 +35,11 @@ public struct Weather
 
     public override readonly string ToString()
     {
-        return $"{Location} - {CurrentTemp}";
+        return ToString(Current.Unit);
     }
 
     public readonly string ToString(TemperatureUnit unit)
     {
-        return $"{Location} - {CurrentTemp.ToUnit(unit)}";
+        return $"{Location} - {Current.ToUnit(unit)}";
     }
 }

@@ -1,5 +1,5 @@
 <span class="inline-flex items-center leading-none text-left flex-nowrap">
-    <span class="@numberWeight h-[1em]">
+    <span class="font-semibold h-[1em]">
         @(Temperature.Degrees.ToString("."))
     </span>
     
@@ -8,12 +8,12 @@
         <span class="relative h-[1em] w-[0.8ch]">
             @if (degreeVisible)
             {
-                <span class="absolute top-0 text-[1em] @degreeWeight">°</span>
+                <span class="absolute top-0 text-[1em] font-extralight">°</span>
             }
 
             @if (ShowUnit)
             {
-                <span class="absolute bottom-0 top-[1em] left-[0.125em] text-[0.465em] @unitWeight">
+                <span class="absolute bottom-0 top-[1em] left-[0.125em] text-[0.465em] font-normal">
                     @(Temperature.UnitLetter)
                 </span>
             }
@@ -23,15 +23,8 @@
 
 @code {
     [Parameter] public Temperature Temperature {get;set;} = default;
-    [Parameter] public string NumberWeight {get;set;} = "semibold";
-    [Parameter] public string UnitWeight {get;set;} = "normal";
-    [Parameter] public string DegreeWeight {get;set;} = "extralight";
     [Parameter] public bool ShowDegree {get;set;} = true;
     [Parameter] public bool ShowUnit {get;set;} = true;
-
-    private string numberWeight => $"font-{NumberWeight}";
-    private string unitWeight => $"font-{UnitWeight}";
-    private string degreeWeight => $"font-{DegreeWeight}";
 
     private bool degreeVisible => ShowDegree && Temperature.Unit != TemperatureUnit.Kelvin;
 }

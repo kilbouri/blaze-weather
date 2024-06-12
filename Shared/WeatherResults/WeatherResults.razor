@@ -1,61 +1,74 @@
 @using BlazorTime
 
-<div class="@GLASSMORPHIC_PANEL w-full max-w-3xl">
-        <p class="text-xl font-medium">@(Weather.Description)</p>
-        <hr class="border-white/50">
+<div class="@GLASSMORPHIC_PANEL w-full max-w-sm sm:max-w-3xl">
+    <p class="text-xl font-medium">@(Weather.Description)</p>
+    
+    <hr class="border-white/50">
 
+    <div class="flex flex-wrap items-baseline justify-between text-zinc-400">
         @if(SelectedOption != null) {
-            <div class="flex flex-wrap items-baseline justify-between text-zinc-400">
-                <span>@(SelectedOption.City), @(SelectedOption.State)</span>
-                <span><ToLocal DateTime="@(Weather.Updated)" Format="DDDD' at 'HH:MM" /></span>
-            </div>
+            <span>@(SelectedOption.City), @(SelectedOption.State)</span>
         }
+        
+        <span><ToLocal DateTime="@(Weather.Updated)" Format="DDDD' at 'HH:MM" /></span>
+    </div>
 
-        <div class="flex items-center gap-12">
-            @* Icon and current temperature *@
-            <div class="flex items-center gap-4 text-6xl whitespace-nowrap">
-                <WeatherIcon Url=@(Weather.IconUrl) Description=@(Weather.Description) />
-                <TemperatureDisplay Temperature="@(ToPreferredUnit(Weather.CurrentTemp))" />
-            </div>
-
-            @* extra temps and wind *@
-            <div class="flex flex-col flex-grow">
-                <span class="text-xl">
-                    <span class="text-base text-zinc-400">feels like</span>
-                    <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.FeelsLike))" />
-                </span>
-                <span class="text-xl">
-                    <span class="text-base text-zinc-400">min</span>
-                    <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.MinTemp))" />
-                </span>
-                <span class="text-xl">
-                    <span class="text-base text-zinc-400">max</span>
-                    <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.MaxTemp))" />
-                </span>
-                <span class="text-xl">
-                    <span class="text-base text-zinc-400">humidity</span>
-                    <span>@(Weather.HumidityPerecent)%</span>
-                </span>
-            </div>
-            <div class="flex flex-col items-end">
-                <span class="text-xl">
-                    <span class="text-base text-zinc-400">wind speed</span>
-                    <span>@(Weather.WindSpeed) m/s</span>
-                </span>
-                <span class="text-xl">
-                    <span class="text-base text-zinc-400">wind gust</span>
-                    <span>@(Weather.WindGust) m/s</span>
-                </span>
-                <span class="text-xl">
-                    <span class="text-base text-zinc-400">direction</span>
-                    <span>@(Weather.WindDegrees)°</span>
-                </span>
-                <span class="text-xl">
-                    <span class="text-base text-zinc-400">cloud cover</span>
-                    <span>@(Weather.CloudsPercent)%</span>
-                </span>
-            </div>
+    <div class="flex flex-col items-start gap-4 sm:items-center sm:flex-row">
+        <div class="flex flex-wrap text-6xl place-content-center whitespace-nowrap">
+            <WeatherIcon Url=@(Weather.IconUrl) Description=@(Weather.Description) />
+            <TemperatureDisplay Temperature="@(ToPreferredUnit(Weather.Current))" />
         </div>
+
+        <div class="flex flex-col flex-grow">
+            <DataDisplay>
+                <Label>feels like</Label>
+                <Value>
+                    <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.FeelsLike))" />
+                </Value>
+            </DataDisplay>
+            <DataDisplay>
+                <Label>min</Label>
+                <Value>
+                    <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.Min))" />
+                </Value>
+            </DataDisplay>
+            <DataDisplay>
+                <Label>max</Label>
+                <Value>
+                    <TemperatureDisplay ShowUnit=false Temperature="@(ToPreferredUnit(Weather.Max))" />
+                </Value>
+            </DataDisplay>
+            <DataDisplay>
+                <Label>humidity</Label>
+                <Value>@Weather.HumidityPerecent.ToString("0.")</Value>
+                <Unit>%</Unit>
+            </DataDisplay>
+        </div>
+        
+        <div class="flex flex-col sm:items-end">
+            <DataDisplay>
+                <Label>wind</Label>
+                <Value>
+                    @Weather.WindDirection.ShortRepresentation @Weather.Wind.ToUnit(SpeedUnit.KilometersPerHour).Value.ToString("0.#")</Value>
+                <Unit>@Weather.Wind.ToUnit(SpeedUnit.KilometersPerHour).UnitAbbreviation</Unit>
+            </DataDisplay>
+            <DataDisplay>
+                <Label>gust</Label>
+                <Value>@Weather.WindGust.ToUnit(SpeedUnit.KilometersPerHour).Value.ToString("0.#")</Value>
+                <Unit>@Weather.WindGust.ToUnit(SpeedUnit.KilometersPerHour).UnitAbbreviation</Unit>
+            </DataDisplay>
+            <DataDisplay>
+                <Label>cloud cover</Label>
+                <Value>@Weather.CloudsPercent</Value>
+                <Unit>%</Unit>
+            </DataDisplay>
+            <DataDisplay>
+                <Label>visibility</Label>
+                <Value>@Weather.Visibility.ToUnit(LengthUnit.Kilometers).Value.ToString("0.##")</Value>
+                <Unit>@Weather.Visibility.ToUnit(LengthUnit.Kilometers).UnitAbbreviation</Unit>
+            </DataDisplay>
+        </div>
+    </div>
 </div>
 
 
